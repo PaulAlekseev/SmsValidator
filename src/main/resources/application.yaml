@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+  datasource:
+    username: root
+    password: q124578
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/test_db
+
+auth:
+  token:
+    secret: ljhdslghiopbmispvgspmvgjcaqdfsojdh1uh980fudh178rfh234897fh92378f8
+    auth-expiration: 60000
+    refresh-expiration: 3650000

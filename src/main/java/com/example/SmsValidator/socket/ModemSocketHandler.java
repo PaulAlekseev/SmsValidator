@@ -27,7 +27,6 @@ public class ModemSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 //        System.out.println(session.getHandshakeHeaders());
-        if (!Objects.equals(session.getHandshakeHeaders().getFirst("hlello"), "something")) session.close();
         ModemProviderSessionEntity providerSession = new ModemProviderSessionEntity();
         providerSession.setSocketId(session.getId());
         providerSession.setActive(true);
