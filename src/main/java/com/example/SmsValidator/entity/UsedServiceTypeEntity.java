@@ -2,6 +2,9 @@ package com.example.SmsValidator.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -9,6 +12,9 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Setter
+@Getter
+@NoArgsConstructor
 public class UsedServiceTypeEntity {
 
     private int timesUsed = 1;
@@ -30,55 +36,4 @@ public class UsedServiceTypeEntity {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "usedServiceTypeEntity")
     private List<TaskEntity> taskEntity;
-
-    public UsedServiceTypeEntity() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public ServiceTypeEntity getServiceType() {
-        return serviceType;
-    }
-
-    public void setServiceType(ServiceTypeEntity serviceType) {
-        this.serviceType = serviceType;
-    }
-
-    public ModemEntity getModemEntity() {
-        return modemEntity;
-    }
-
-    public void setModemEntity(ModemEntity modemEntity) {
-        this.modemEntity = modemEntity;
-    }
-
-    public List<TaskEntity> getTaskEntity() {
-        return taskEntity;
-    }
-
-    public void setTaskEntity(List<TaskEntity> taskEntity) {
-        this.taskEntity = taskEntity;
-    }
-
-    public int getTimesUsed() {
-        return timesUsed;
-    }
-
-    public void setTimesUsed(int timesUsed) {
-        this.timesUsed = timesUsed;
-    }
-
-    public Date getLastTimeUsed() {
-        return lastTimeUsed;
-    }
-
-    public void setLastTimeUsed(Date lastTimeUsed) {
-        this.lastTimeUsed = lastTimeUsed;
-    }
 }

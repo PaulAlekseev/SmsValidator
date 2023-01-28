@@ -1,10 +1,16 @@
 package com.example.SmsValidator.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
+@Setter
+@Getter
+@NoArgsConstructor
 public class ModemProviderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,30 +22,4 @@ public class ModemProviderEntity {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "modemProvider")
     private List<ModemProviderSessionEntity> modemProviderSessionEntityList;
 
-    public ModemProviderEntity() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public List<ModemProviderSessionEntity> getModemProviderSessionEntityList() {
-        return modemProviderSessionEntityList;
-    }
-
-    public void setModemProviderSessionEntityList(List<ModemProviderSessionEntity> modemProviderSessionEntityList) {
-        this.modemProviderSessionEntityList = modemProviderSessionEntityList;
-    }
 }
