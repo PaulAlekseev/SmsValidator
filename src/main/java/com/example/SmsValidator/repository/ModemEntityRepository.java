@@ -13,6 +13,10 @@ import java.util.Collection;
 import java.util.List;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long> {
+    @Transactional
+    @Modifying
+    @Query("update ModemEntity m set m.busy = ?1 where m.id = ?2")
+    int updateBusyById(Boolean busy, Long id);
     ModemEntity findByTaskEntity_Messages(MessageEntity messages);
     ModemEntity findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyOrderByIdAsc();
 

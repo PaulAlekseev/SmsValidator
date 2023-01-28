@@ -14,4 +14,8 @@ public class UserService {
     private UserRepository userRepository;
     private ModemEntityRepository modemEntityRepository;
 
+    public int reserveModem() {
+        return modemEntityRepository
+    }
+
 }
