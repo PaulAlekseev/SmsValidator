@@ -1,4 +1,4 @@
-package com.example.SmsValidator.bean;
+package com.example.SmsValidator.bean.refreshtoken;
 
 import lombok.Getter;
 import lombok.Setter;

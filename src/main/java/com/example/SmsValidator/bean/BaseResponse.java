@@ -1,10 +1,8 @@
 package com.example.SmsValidator.bean;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-public abstract class RefreshTokenBaseResponse {
+public abstract class BaseResponse {
     protected boolean ok = true;
 }

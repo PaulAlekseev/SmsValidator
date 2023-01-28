@@ -1,9 +1,9 @@
 package com.example.SmsValidator.controller;
 
-import com.example.SmsValidator.bean.AuthenticationRequest;
+import com.example.SmsValidator.bean.authentication.AuthenticationRequest;
 import com.example.SmsValidator.service.AuthenticationService;
-import com.example.SmsValidator.bean.RegisterRequest;
-import com.example.SmsValidator.bean.RefreshTokenBaseRequest;
+import com.example.SmsValidator.bean.authentication.RegisterRequest;
+import com.example.SmsValidator.bean.refreshtoken.RefreshTokenBaseRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

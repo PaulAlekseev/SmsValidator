@@ -1,4 +1,4 @@
-package com.example.SmsValidator.bean;
+package com.example.SmsValidator.bean.authentication;
 
 import lombok.Getter;
 import lombok.Setter;

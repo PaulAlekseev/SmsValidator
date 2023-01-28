@@ -1,7 +1,11 @@
 package com.example.SmsValidator.service;
 
 import com.example.SmsValidator.auth.JwtTokenProvider;
-import com.example.SmsValidator.bean.*;
+import com.example.SmsValidator.bean.authentication.*;
+import com.example.SmsValidator.bean.refreshtoken.RefreshTokenBaseRequest;
+import com.example.SmsValidator.bean.refreshtoken.RefreshTokenBaseResponse;
+import com.example.SmsValidator.bean.refreshtoken.RefreshTokenFailResponse;
+import com.example.SmsValidator.bean.refreshtoken.RefreshTokenSuccessResponse;
 import com.example.SmsValidator.entity.Role;
 import com.example.SmsValidator.entity.User;
 import com.example.SmsValidator.repository.UserRepository;

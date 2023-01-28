@@ -24,8 +24,9 @@ public class ModemEntity {
     private String IMSI;
     private String ICCID;
     private Boolean busy = false;
-    private Date reservedUntil = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//    private Date reservedUntil = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+    private Date reservedUntil = new Date();
     @ManyToOne
     @JoinColumn(name = "reserved_by")
     private User reservedBy;

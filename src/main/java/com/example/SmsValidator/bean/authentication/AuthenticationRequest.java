@@ -1,5 +1,6 @@
-package com.example.SmsValidator.bean;
+package com.example.SmsValidator.bean.authentication;
 
+import com.example.SmsValidator.bean.BaseResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+public class AuthenticationRequest extends BaseResponse {
 
-  private String username;
   private String email;
   private String password;
 }

@@ -8,9 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TaskEntityRepository extends CrudRepository<TaskEntity, Long> {
+    List<TaskEntity> findByUser_EmailAndReadyTrueOrderByIdDesc(String email);
+    List<TaskEntity> findByUser_EmailAndReadyTrueAndDoneFalseOrderByIdDesc(String email);
+    TaskEntity findByUser_IdAndDoneFalseAndReadyTrue(Long id);
+    List<TaskEntity> findByUser_EmailOrderByIdDesc(String email);
     TaskEntity findByIdAndModemProviderSessionEntity(Long id, ModemProviderSessionEntity modemProviderSessionEntity);
     @Transactional
     @Modifying

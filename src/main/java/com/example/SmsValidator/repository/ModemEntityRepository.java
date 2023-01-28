@@ -10,9 +10,12 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long> {
+    ModemEntity findFirstByReservedUntilLessThanEqualAndUsedServiceTypeEntityListEmptyOrderByIdDesc(Date reservedUntil);
+    List<ModemEntity> findByReservedBy_IdAndReservedUntilLessThanOrderByReservedUntilDesc(Long id, Date reservedUntil);
     @Transactional
     @Modifying
     @Query("update ModemEntity m set m.busy = ?1 where m.id = ?2")
