@@ -43,12 +43,14 @@ public class TaskService {
                         serviceType.getId(),
                         serviceType.getAllowedAmount(),
                         newDate,
-                        new Date()
+                        Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
                 );
         return usedServiceTypeEntity != null ?
                 usedServiceTypeEntity.getModemEntity() :
                 modemEntityRepository.
-                findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyOrderByIdAsc();
+                        findFirstByBusyFalseAndTaskEntity_ModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyAndReservedUntilLessThanOrderByIdDesc(
+                                new Date()
+                        );
     }
 
     public ModemEntity getAvailableModem(Long serviceEntityId) {

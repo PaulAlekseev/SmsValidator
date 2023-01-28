@@ -40,7 +40,7 @@ public class ModemService {
 
     public GetOwnReservedModemsResponse getReservedModems(Long userId) {
         return new GetOwnReservedModemsResponse(modemEntityRepository.
-                findByReservedBy_IdAndReservedUntilLessThanOrderByReservedUntilDesc(userId, new Date())
+                findByReservedBy_IdAndReservedUntilGreaterThanEqualOrderByReservedUntilDesc(userId, new Date())
                 .stream()
                 .map(Modem::toModel)
                 .collect(Collectors.toList()));

@@ -71,4 +71,12 @@ public class User implements UserDetails {
   public boolean isEnabled() {
     return true;
   }
+
+  public List<ModemEntity> getReservedModems() {
+    return reservedModems;
+  }
+
+  public void setReservedModems(List<ModemEntity> reservedModems) {
+    this.reservedModems = reservedModems;
+  }
 }

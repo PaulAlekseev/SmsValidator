@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private UserRepository userRepository;
-    private TaskEntityRepository taskEntityRepository;
+    private final UserRepository userRepository;
+    private final TaskEntityRepository taskEntityRepository;
 
     public double getBalance(String email) {
         return userRepository.findFirstByEmail(email).getBalance();

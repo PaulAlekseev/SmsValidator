@@ -12,6 +12,16 @@ spring:
     username: j93065772
     password: crytek236
 
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicTinder: TRACE
+
 auth:
   token:
     secret: ljhdslghiopbmispvgspmvgjcaqdfsojdh1uh980fudh178rfh234897fh92378f8
