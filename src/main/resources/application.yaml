@@ -7,10 +7,10 @@ spring:
       ddl-auto: update
       show-sql: true
   datasource:
-    username: root
-    password: q124578
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/test_db
+    url: jdbc:mysql://mysql.j93065772.myjino.ru:3306/j93065772
+    username: j93065772
+    password: crytek236
 
 auth:
   token:

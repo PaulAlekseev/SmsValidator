@@ -20,6 +20,10 @@ public class ModemEntity {
     private Boolean busy = false;
     private Date reservedUntil = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
+    @ManyToOne
+    @JoinColumn(name = "reserved_by")
+    private User reservedBy;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "modemEntity")
     private List<UsedServiceTypeEntity> usedServiceTypeEntityList;
 

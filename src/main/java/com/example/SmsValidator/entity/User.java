@@ -1,11 +1,8 @@
 package com.example.SmsValidator.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -21,7 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_user")
+@Table(name = "user")
 public class User implements UserDetails {
 
   @Id
@@ -31,8 +28,14 @@ public class User implements UserDetails {
   private String username;
   private String password;
 
+  @Column(precision = 2)
+  private double balance;
+
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  @OneToMany(cascade = CascadeType.DETACH, mappedBy = "reservedBy")
+  private List<ModemEntity> reservedModems;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
