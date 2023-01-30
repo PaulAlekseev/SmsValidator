@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaskEntityRepository extends CrudRepository<TaskEntity, Long> {
+    TaskEntity findFirstById(Long id);
+    boolean existsByIdAndReservedTrue(Long id);
     List<TaskEntity> findByUser_EmailAndReadyTrueOrderByIdDesc(String email);
     List<TaskEntity> findByUser_EmailAndReadyTrueAndDoneFalseOrderByIdDesc(String email);
     TaskEntity findByUser_IdAndDoneFalseAndReadyTrue(Long id);

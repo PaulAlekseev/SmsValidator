@@ -1,7 +1,7 @@
 package com.example.SmsValidator.controller;
 
 import com.example.SmsValidator.service.ModemService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,10 +9,10 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/")
+@RequiredArgsConstructor
 public class DemoController {
 
-    @Autowired
-    private ModemService modemService;
+    private final ModemService modemService;
 
     @GetMapping(path = "demo")
     public ResponseEntity<String> sayHello(Principal principal) {

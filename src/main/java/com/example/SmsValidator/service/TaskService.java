@@ -1,5 +1,8 @@
 package com.example.SmsValidator.service;
 
+import com.example.SmsValidator.bean.task.TaskBaseResponse;
+import com.example.SmsValidator.bean.task.TaskErrorResponse;
+import com.example.SmsValidator.bean.task.TaskSuccessResponse;
 import com.example.SmsValidator.entity.*;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.model.Task;
@@ -35,6 +38,10 @@ public class TaskService {
     private final UsedServiceTypeEntityRepository userServiceRepository;
     private final UserRepository userRepository;
 
+    public boolean checkIfReserved(Long taskId) {
+        return taskRepo.existsByIdAndReservedTrue(taskId);
+    }
+
     public ModemEntity getAvailableModem(ServiceTypeEntity serviceType) {
         LocalDate currentDate = LocalDate.now();
         Date newDate = Date.from(currentDate.minusDays(serviceType.getDaysBetween()).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -57,21 +64,40 @@ public class TaskService {
         return getAvailableModem(serviceRepository.findById(serviceEntityId).get());
     }
 
-    public Task createTask(Long serviceId, Long timeSeconds, Principal principal) {
-        return createTask(serviceId, timeSeconds, userRepository.findFirstByEmail(principal.getName()));
+    public TaskBaseResponse createTelegramTask(Long serviceId, Long telegramId) {
+        User user = userRepository.findFirstByTelegramId(telegramId);
+        if (user == null) return new TaskErrorResponse("Could not find user with teleId");
+        return createTask(serviceId, user);
     }
 
-    public Task createTask(Long serviceId, Long timeSeconds, User user) {
+    public TaskBaseResponse createReservedTelegramTask(Long serviceId, Long modemId, Long telegramId) {
+        User user = userRepository.findFirstByTelegramId(telegramId);
+        ModemEntity modem = modemEntityRepository.findFirstById(modemId);
+        if (user == null) return new TaskErrorResponse("Could not find user with teleId");
+        return createReservedTask(serviceId, modem, user);
+    }
+
+    public TaskBaseResponse createTask(Long serviceId, Principal principal) {
+        return createTask(serviceId, userRepository.findFirstByEmail(principal.getName()));
+    }
+
+    public TaskBaseResponse createReservedTask(Long serviceId, Long modemId, Principal principal) {
+        ModemEntity modem = modemEntityRepository.findFirstById(modemId);
+        User user = userRepository.findFirstByEmail(principal.getName());
+        if (modem == null) return new TaskErrorResponse("Could not found such modem");
+        return createReservedTask(serviceId, modem, user);
+    }
+
+    public TaskBaseResponse createReservedTask(Long serviceId, ModemEntity chosenModem, User user) {
         TaskEntity task = new TaskEntity();
         ServiceTypeEntity serviceType = serviceRepository.findById(serviceId).get();
         task.setServiceTypeEntity(serviceType);
-        ModemEntity chosenModem = getAvailableModem(serviceType);
-        if (chosenModem == null) return null;
         ModemProviderSessionEntity chosenProvider = providerSessionRepository.findByModemEntityList_Id(chosenModem.getId());
         task.setModemEntity(chosenModem);
         task.setModemProviderSessionEntity(chosenProvider);
-        task.setTimeSeconds(timeSeconds);
+        task.setTimeSeconds(serviceType.getTimeSeconds());
         task.setUser(user);
+        task.setReserved(true);
         WebSocketSession chosenSession = socketConfiguration.
                 getSocketHandler().
                 getSessions().
@@ -88,7 +114,43 @@ public class TaskService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return Task.toModel(resultTask);
+        return new TaskSuccessResponse(
+                Modem.toModel(chosenModem),
+                Task.toModel(resultTask)
+        );
+    }
+
+    public TaskBaseResponse createTask(Long serviceId, User user) {
+        TaskEntity task = new TaskEntity();
+        ServiceTypeEntity serviceType = serviceRepository.findById(serviceId).get();
+        task.setServiceTypeEntity(serviceType);
+        ModemEntity chosenModem = getAvailableModem(serviceType);
+        if (chosenModem == null) {
+            return new TaskErrorResponse("Could not find modem for task");
+        }
+        ModemProviderSessionEntity chosenProvider = providerSessionRepository.findByModemEntityList_Id(chosenModem.getId());
+        task.setModemEntity(chosenModem);
+        task.setModemProviderSessionEntity(chosenProvider);
+        task.setTimeSeconds(serviceType.getTimeSeconds());
+        task.setUser(user);
+        task.setReserved(false);
+        WebSocketSession chosenSession = socketConfiguration.
+                getSocketHandler().
+                getSessions().
+                get(chosenProvider.getSocketId());
+        TaskEntity resultTask = taskRepo.save(task);
+        resultTask.setMessages(new ArrayList<>());
+        ModemCheckOutContainer container = new ModemCheckOutContainer(resultTask.getId(), Modem.toModel(chosenModem));
+        Gson gson = new Gson();
+        try {
+            chosenSession.sendMessage(MessageFormer.formMessage(OutCommands.CHECK_MODEM, gson.toJson(container)));
+            modemEntityRepository.
+                    updateBusyByPhoneNumberAndModemProviderSessionEntity(
+                            true, chosenModem.getPhoneNumber(), chosenProvider);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new TaskSuccessResponse(Modem.toModel(chosenModem), Task.toModel(task));
     }
 
 
@@ -110,7 +172,14 @@ public class TaskService {
 //    }
 
 
-    public Task getTask(Long taskId) {
-        return Task.toModel(taskRepo.findById(taskId).get());
+    public TaskBaseResponse getTask(Long taskId) {
+        TaskEntity taskEntity = taskRepo.findFirstById(taskId);
+        if (taskEntity == null) return new TaskErrorResponse("Task does not exist");
+        ModemEntity modemEntity = taskEntity.getModemEntity();
+        Task task = Task.toModel(taskEntity);
+        Modem modem = Modem.toModel(taskEntity.getModemEntity());
+        return modemEntity == null ?
+                new TaskErrorResponse("Task does not exist"):
+                new TaskSuccessResponse(Modem.toClientModem(modemEntity), Task.toModel(taskEntity));
     }
 }

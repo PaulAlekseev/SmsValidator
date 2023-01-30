@@ -14,6 +14,9 @@ import java.util.Date;
 import java.util.List;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long> {
+    ModemEntity findFirstByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndModemProviderSessionEntity_BusyFalseAndUsedServiceTypeEntityListEmptyOrderByIdDesc(Date reservedUntil);
+    ModemEntity findByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmpty(Date reservedUntil);
+    ModemEntity findFirstById(Long id);
     ModemEntity findFirstByBusyFalseAndTaskEntity_ModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyAndReservedUntilLessThanOrderByIdDesc(Date reservedUntil);
     List<ModemEntity> findByReservedBy_IdAndReservedUntilGreaterThanEqualOrderByReservedUntilDesc(Long id, Date reservedUntil);
     ModemEntity findFirstByReservedUntilLessThanEqualAndUsedServiceTypeEntityListEmptyOrderByIdDesc(Date reservedUntil);

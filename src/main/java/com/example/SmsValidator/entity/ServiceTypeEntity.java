@@ -25,6 +25,8 @@ public class ServiceTypeEntity {
     private int allowedAmount;
     private int daysBetween;
 
+    private Long timeSeconds;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "serviceType")
     private List<UsedServiceTypeEntity> usedServiceTypeEntityList;
 

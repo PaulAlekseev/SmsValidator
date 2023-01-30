@@ -1,6 +1,5 @@
 package com.example.SmsValidator.bean.reservemodem;
 
-import com.example.SmsValidator.bean.BaseResponse;
 import com.example.SmsValidator.model.Modem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +10,6 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-public class GetOwnReservedModemsResponse extends BaseResponse {
+public class GetOwnReservedModemSuccessResponse extends GetOwnReservedModemBaseResponse {
     private List<Modem> reservedModems;
 }

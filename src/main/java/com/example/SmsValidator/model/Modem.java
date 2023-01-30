@@ -22,6 +22,12 @@ public class Modem {
         return modem;
     }
 
+    public static Modem toClientModem(ModemEntity modemEntity) {
+        Modem modem = new Modem();
+        modem.setPhoneNumber(modemEntity.getPhoneNumber());
+        return modem;
+    }
+
     public Long getId() {
         return id;
     }

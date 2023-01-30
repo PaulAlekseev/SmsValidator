@@ -45,7 +45,7 @@ public class SocketService {
     }
 
     public void handleTaskDone(TaskEntity task) {
-        UsedServiceTypeEntity usedServiceType =  usedServiceTypeEntityRepository.
+        UsedServiceTypeEntity usedServiceType = usedServiceTypeEntityRepository.
                 findByTaskEntity_ModemEntity_Id(task.getModemEntity().getId());
         if (usedServiceType == null) {
             usedServiceType = new UsedServiceTypeEntity();
@@ -62,9 +62,13 @@ public class SocketService {
 
     public int setTaskDone(Long taskId, ModemProviderSessionEntity providerSession) {
         TaskEntity task = taskEntityRepository.findByIdAndModemProviderSessionEntity(taskId, providerSession);
+        return setTaskDone(task, providerSession);
+    }
+
+    private int setTaskDone(TaskEntity task, ModemProviderSessionEntity providerSession) {
         if (task.isReady()) handleTaskDone(task);
         return taskEntityRepository.
-                updateDoneByIdAndModemProviderSessionEntity(true, taskId, providerSession);
+                updateDoneByIdAndModemProviderSessionEntity(true, task.getId(), providerSession);
     }
 
     public int setModemProviderBusy(ModemProviderSessionEntity modemProviderSession) {
@@ -104,11 +108,11 @@ public class SocketService {
 
     public List<ModemEntity> filterModems(List<ModemEntity> modems, List<ModemEntity> modemsFromDb) {
         Map<String, ModemEntity> phoneModems = new HashMap<>();
-        for(ModemEntity modem : modemsFromDb) {
+        for (ModemEntity modem : modemsFromDb) {
             phoneModems.put(modem.getIMSI(), modem);
         }
         List<ModemEntity> result = new ArrayList<>();
-        for(ModemEntity modem : modems) {
+        for (ModemEntity modem : modems) {
             ModemEntity modemEntity = phoneModems.get(modem.getIMSI());
             if (modemEntity == null) continue;
             if (Objects.equals(modemEntity.getICCID(), modem.getICCID())) {
@@ -181,12 +185,12 @@ public class SocketService {
                 modems.stream().map(ModemEntity::getPhoneNumber).collect(Collectors.toList())
         ).stream().map(ModemEntity::getPhoneNumber).toList();
         return (List<ModemEntity>) modemEntityRepository.saveAll(modems.stream().filter(
-                m-> !existingNumbers.contains(m.getPhoneNumber())).collect(Collectors.toList()
+                m -> !existingNumbers.contains(m.getPhoneNumber())).collect(Collectors.toList()
         ));
     }
 
     public ModemEntity getModemWithIMSIAndICCID(ModemEntity modem) {
-        if(modem.getIMSI() == null || modem.getICCID() == null) return null;
+        if (modem.getIMSI() == null || modem.getICCID() == null) return null;
         return modemEntityRepository.findByIMSIAndICCID(modem.getIMSI(), modem.getICCID());
     }
 
@@ -203,9 +207,10 @@ public class SocketService {
     }
 
     public ModemEntity updateModemOnBusyTask(Long taskId, Map<String, WebSocketSession> sessions, ModemProviderSessionEntity providerSession) {
+        if (taskService.checkIfReserved(taskId)) return null;
         ModemEntity chosenModem = taskService.getAvailableModem(
-                        taskEntityRepository.findById(taskId).get().getServiceTypeEntity()
-                );
+                taskEntityRepository.findById(taskId).get().getServiceTypeEntity()
+        );
         if (chosenModem == null) {
             setTaskNotReady(taskId);
             setTaskDone(taskId, providerSession);
@@ -234,7 +239,7 @@ public class SocketService {
             Long taskId,
             ModemProviderSessionEntity providerSession,
             List<MessageEntity> messages) {
-        TaskEntity task =  taskEntityRepository.
+        TaskEntity task = taskEntityRepository.
                 findByIdAndModemProviderSessionEntity_Id(taskId, providerSession.getId());
         ServiceTypeEntity service = serviceTypeEntityRepository.findByTaskEntity_Id(taskId);
         if (service == null || task == null) return 0;
@@ -246,10 +251,12 @@ public class SocketService {
             Matcher senderMatcher = senderRegex.matcher(message.getSender());
             if (!senderMatcher.find()) continue;
             message.setTaskEntity(task);
+            setTaskDone(task, providerSession);
             messageEntityRepository.save(message);
         }
         return 1;
     }
+
 
     public List<Modem> handleBlankModems(List<ModemEntity> blankModems) {
         List<ModemEntity> modems = modemEntityRepository.
@@ -284,6 +291,7 @@ public class SocketService {
     public int setTaskNotReady(Long taskId) {
         return taskEntityRepository.updateReadyById(false, taskId);
     }
+
     public int disconnectNotBusyModems(ModemProviderSessionEntity providerSession) {
         return modemEntityRepository.
                 updateModemProviderSessionEntityByModemProviderSessionEntityAndBusyTrue(

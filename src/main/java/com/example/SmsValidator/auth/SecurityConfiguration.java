@@ -1,6 +1,7 @@
 package com.example.SmsValidator.auth;
 
 import com.example.SmsValidator.auth.JwtAuthenticationFilter;
+import com.example.SmsValidator.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class SecurityConfiguration {
         .csrf().disable()
         .authorizeHttpRequests(auth -> {
           auth.requestMatchers("/api/v1/auth/**").permitAll();
+          auth.requestMatchers("/api/v1/admin/**").hasRole(Role.ADMIN.name());
           auth.anyRequest().authenticated();
         })
         .sessionManagement(policy -> {

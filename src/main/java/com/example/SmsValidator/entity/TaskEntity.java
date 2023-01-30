@@ -20,6 +20,7 @@ public class TaskEntity {
     private boolean ready;
     private boolean done;
     private Long timeSeconds;
+    private boolean reserved;
 
     @ManyToOne
     @JoinColumn(name = "service_id")
