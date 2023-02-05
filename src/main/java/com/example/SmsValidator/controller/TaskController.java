@@ -1,14 +1,15 @@
 package com.example.SmsValidator.controller;
 
+import com.example.SmsValidator.model.Modem;
+import com.example.SmsValidator.repository.ModemEntityRepository;
 import com.example.SmsValidator.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -16,9 +17,10 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class TaskController {
     private final TaskService taskService;
+    private final ModemEntityRepository modemEntityRepository;
 
 
-    @GetMapping("create")
+    @PostMapping("create")
     public ResponseEntity<?> createTask(
             Principal principal,
             @RequestParam Long serviceId) {
@@ -30,12 +32,22 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTask(taskId));
     }
 
-    @GetMapping("createReserved")
+    @PostMapping("createReserved")
     public ResponseEntity<?> createReservedTask(Principal principal,
                                                 @RequestParam Long serviceId,
                                                 @RequestParam Long modemId) {
         return ResponseEntity.ok(taskService.createReservedTask(serviceId, modemId, principal));
     }
+
+//    @GetMapping(path = "test")
+//    public ResponseEntity<?> test(Principal principal,
+//                                                @RequestParam Long serviceId,
+//                                  @RequestParam int amount) {
+//        return ResponseEntity.ok(
+//                modemEntityRepository.count(serviceId, new Date(), amount)
+//                        .stream().map(Modem::toModel).collect(Collectors.toList())
+//        );
+//    }
 
 //    @GetMapping("/getModems")
 //    private ResponseEntity getModems(@RequestParam Long serviceId){

@@ -2,14 +2,13 @@ package com.example.SmsValidator.bean.servicetype;
 
 import com.example.SmsValidator.model.ServiceType;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 public class GetAmountOfAllowedModemSuccessResponse extends GetAmountOfAllowedModemBaseResponse{
 
-    private ServiceType service;
-    private int amountOfModems;
+    private final ServiceType service;
+    private final int amount;
 }

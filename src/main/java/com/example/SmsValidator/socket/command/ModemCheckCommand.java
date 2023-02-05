@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.Map;
 
 public class ModemCheckCommand extends Command{
+    private static final int LOW_SIGNAL_QUALITY = 5;
+
     public ModemCheckCommand(String json, ModemProviderSessionEntity modemProviderSession, SocketService service, WebSocketSession session, Map<String, WebSocketSession> sessions) {
         super(json, modemProviderSession, service, session, sessions);
     }
@@ -29,7 +31,7 @@ public class ModemCheckCommand extends Command{
             service.updateModemOnBusyTask(container.getTaskId(), sessions, modemProviderSession);
             return;
         }
-        if (container.getSignalQuality() < 5) {
+        if (container.getSignalQuality() < LOW_SIGNAL_QUALITY) {
             service.updateModemOnBusyTask(container.getTaskId(), sessions, modemProviderSession);
             return;
         }

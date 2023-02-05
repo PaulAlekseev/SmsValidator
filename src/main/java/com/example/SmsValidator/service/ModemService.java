@@ -24,7 +24,8 @@ public class ModemService {
 
     public ModemEntity getAvailableForReserveModem() {
         return modemEntityRepository
-                .findFirstByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndModemProviderSessionEntity_BusyFalseAndUsedServiceTypeEntityListEmptyOrderByIdDesc(new Date());
+                .findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_TimesUsedOrderByIdDesc(0);
+//                .findFirstByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndModemProviderSessionEntity_BusyFalseAndUsedServiceTypeEntityListEmptyOrderByIdDesc(new Date());
     }
 
     public ReserveModemBaseResponse reserveModem(Principal principal, int daysToReserve) {
@@ -55,8 +56,8 @@ public class ModemService {
         if (user == null) {
             return new GetOwnReservedModemErrorResponse("Could not find user");
         }
-        return new GetOwnReservedModemSuccessResponse(modemEntityRepository.
-                findByReservedBy_IdAndReservedUntilGreaterThanEqualOrderByReservedUntilDesc(user.getId(), new Date())
+        return new GetOwnReservedModemSuccessResponse(modemEntityRepository
+                .findByReservedBy_IdAndReservedUntilGreaterThanEqualOrderByReservedUntilDesc(user.getId(), new Date())
                 .stream()
                 .map(Modem::toModel)
                 .collect(Collectors.toList()));
@@ -67,6 +68,6 @@ public class ModemService {
     }
 
     public GetOwnReservedModemBaseResponse getReservedModems(Principal principal) {
-        return getReservedModems(userRepository.findFirstByEmail(principal.getName());
+        return getReservedModems(userRepository.findFirstByEmail(principal.getName()));
     }
 }

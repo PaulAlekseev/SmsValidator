@@ -1,8 +1,13 @@
 package com.example.SmsValidator.bean.servicetype;
 
-import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@AllArgsConstructor
+@Data
 public class GetAmountOfAllowedModemErrorResponse extends GetAmountOfAllowedModemBaseResponse{
-    private String errorMessage;
+    private final String errorMessage;
+
+    public GetAmountOfAllowedModemErrorResponse(String errorMessage) {
+        this.errorMessage = errorMessage;
+        this.ok = false;
+    }
 }

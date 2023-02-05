@@ -1,12 +1,17 @@
 package com.example.SmsValidator.auth;
 
+import com.example.SmsValidator.entity.User;
+import com.example.SmsValidator.service.UserService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +23,10 @@ import java.util.regex.Pattern;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtTokenProvider {
+
+    private final UserService userService;
 
     @Value("${auth.token.secret}")
     private String SECRET_KEY;
@@ -96,5 +104,10 @@ public class JwtTokenProvider {
         Matcher matcher = pattern.matcher(authHeader);
         if (matcher.find()) return matcher.group(1);
         return null;
+    }
+
+    public Authentication getAuthentiation(String token) {
+        User appUser = userService.loadByUsername(getUserName(token));
+        return new UsernamePasswordAuthenticationToken(appUser, appUser.getPassword(), appUser.getAuthorities());
     }
 }

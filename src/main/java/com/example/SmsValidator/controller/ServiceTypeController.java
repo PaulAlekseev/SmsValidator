@@ -3,17 +3,14 @@ package com.example.SmsValidator.controller;
 import com.example.SmsValidator.service.ServiceTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/service")
 @RequiredArgsConstructor
 public class ServiceTypeController {
 
-    private ServiceTypeService serviceTypeService;
+    private final ServiceTypeService serviceTypeService;
 
     @GetMapping(path = "getAllowed")
     public ResponseEntity<?> getAllowedServices() {
@@ -21,7 +18,7 @@ public class ServiceTypeController {
     }
 
     @GetMapping(path = "getAllowedModems")
-    public ResponseEntity<?> getAllowedModems(@RequestAttribute Long serviceId) {
-        return ResponseEntity.ok(serviceTypeService.getAllowedModems(serviceId));
+    public ResponseEntity<?> getAllowedModems(@RequestParam Long serviceId) {
+        return ResponseEntity.ok(serviceTypeService.getAmountOfAvailable(serviceId));
     }
 }

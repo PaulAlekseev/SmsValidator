@@ -1,12 +1,11 @@
 package com.example.SmsValidator.repository;
 
-import com.example.SmsValidator.entity.MessageEntity;
 import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.ModemProviderSessionEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -14,19 +13,50 @@ import java.util.Date;
 import java.util.List;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long> {
+    ModemEntity findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_TimesUsedOrderByIdDesc(int timesUsed);
+    long countByUsedServiceTypeEntityList_TimesUsedLessThanOrUsedServiceTypeEntityListEmpty(int timesUsed);
+    @Query("""
+            select m from ModemEntity m inner join m.usedServiceTypeEntityList usedServiceTypeEntityList
+            where usedServiceTypeEntityList.serviceType.id = ?1 and usedServiceTypeEntityList.timesUsed < ?2""")
+    List<ModemEntity> findByUsedServiceTypeEntityList_ServiceType_IdAndUsedServiceTypeEntityList_TimesUsedLessThan(Long id, int timesUsed);
+
+    List<ModemEntity> findByTaskEntity_IdAndTaskEntity_TimeSecondsLessThan(Long id, Long timeSeconds);
+
+    @Query("""
+            select m from ModemEntity m left join m.usedServiceTypeEntityList usedServiceTypeEntityList
+            where m.busy = false and m.usedServiceTypeEntityList is empty or usedServiceTypeEntityList.serviceType.id <> ?1""")
+    List<ModemEntity> findByBusyFalseAndUsedServiceTypeEntityListEmptyOrUsedServiceTypeEntityList_ServiceType_IdNot(Long id);
+
+//    @Query("""
+//            select m from ModemEntity m inner join m.usedServiceTypeEntityList usedServiceTypeEntityList
+//            where (m.busy = false
+//            and m.modemProviderSessionEntity.busy = false
+//            and m.modemProviderSessionEntity.active = true
+//            and m.reservedUntil < :date
+//            and usedServiceTypeEntityList is empty)
+//            or
+//            (m.busy = false
+//            and m.modemProviderSessionEntity.busy = false
+//            and m.modemProviderSessionEntity.active = true
+//            and m.reservedUntil < :date
+//            and m.usedServiceTypeEntityList.serviceType.id <> :serviceId)
+//            order by m.id DESC""")
+//    List<ModemEntity> findThing(@Param("serviceId") Long serviceId, @Param("date") Date reservedUntil, @Param("times") int amount);
+
+    ModemEntity findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_ServiceType_IdNotAndReservedUntilLessThanOrderByIdDesc(Long id, Date reservedUntil);
+
     ModemEntity findFirstByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndModemProviderSessionEntity_BusyFalseAndUsedServiceTypeEntityListEmptyOrderByIdDesc(Date reservedUntil);
-    ModemEntity findByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmpty(Date reservedUntil);
-    ModemEntity findFirstById(Long id);
-    ModemEntity findFirstByBusyFalseAndTaskEntity_ModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyAndReservedUntilLessThanOrderByIdDesc(Date reservedUntil);
+
+    @Query("""
+            select m from ModemEntity m
+            where m.reservedBy.id = ?1 and m.reservedUntil >= ?2
+            order by m.reservedUntil DESC""")
     List<ModemEntity> findByReservedBy_IdAndReservedUntilGreaterThanEqualOrderByReservedUntilDesc(Long id, Date reservedUntil);
-    ModemEntity findFirstByReservedUntilLessThanEqualAndUsedServiceTypeEntityListEmptyOrderByIdDesc(Date reservedUntil);
-    List<ModemEntity> findByReservedBy_IdAndReservedUntilLessThanOrderByReservedUntilDesc(Long id, Date reservedUntil);
+
     @Transactional
     @Modifying
     @Query("update ModemEntity m set m.busy = ?1 where m.id = ?2")
     int updateBusyById(Boolean busy, Long id);
-    ModemEntity findByTaskEntity_Messages(MessageEntity messages);
-    ModemEntity findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyOrderByIdAsc();
 
     @Transactional
     @Modifying
@@ -85,4 +115,6 @@ public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long>
     int updateModemProviderSessionEntityByPhoneNumberInAndModemProviderSessionEntityNull(ModemProviderSessionEntity modemProviderSessionEntity, Collection<String> phoneNumbers);
 
     List<ModemEntity> findByPhoneNumberIn(Collection<String> phoneNumbers);
+
+    ModemEntity findFirstById(Long modemId);
 }

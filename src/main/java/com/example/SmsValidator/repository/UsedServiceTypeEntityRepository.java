@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.List;
 
 public interface UsedServiceTypeEntityRepository extends CrudRepository<UsedServiceTypeEntity, Long> {
+    UsedServiceTypeEntity findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseAndModemEntity_ModemProviderSessionEntity_ActiveTrueAndModemEntity_ModemProviderSessionEntity_BusyFalseOrderByIdDescTimesUsedDesc(Long id, int timesUsed, Date lastTimeUsed, Date reservedUntil);
+    UsedServiceTypeEntity findFirstByModemEntity_IdAndServiceType_Id(Long id, Long id1);
+    UsedServiceTypeEntity findFirstByTaskEntity_Id(Long id);
     long countByModemEntity_BusyFalseAndTimesUsedLessThanAndLastTimeUsedLessThanEqual(@Nullable int timesUsed, @Nullable Date lastTimeUsed);
     UsedServiceTypeEntity findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseOrderByTimesUsedDesc(Long id, int timesUsed, Date lastTimeUsed, Date reservedUntil);
     List<UsedServiceTypeEntity> findByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilGreaterThanAndModemEntity_BusyFalseOrderByTimesUsedDesc(Long id, int timesUsed, Date lastTimeUsed, Date reservedUntil);
@@ -23,4 +26,6 @@ public interface UsedServiceTypeEntityRepository extends CrudRepository<UsedServ
             where taskEntity.id = ?1 and taskEntity.modemProviderSessionEntity.id = ?2""")
     boolean existsByTaskEntity_IdAndTaskEntity_ModemProviderSessionEntity_Id(Long id, Long id1);
     UsedServiceTypeEntity findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualOrderByTimesUsedDesc(Long id, int timesUsed, Date lastTimeUsed);
+
+    List<UsedServiceTypeEntity> findByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseAndModemEntity_ModemProviderSessionEntity_ActiveTrueAndModemEntity_ModemProviderSessionEntity_BusyFalseOrderByIdDescTimesUsedDesc(Long id, int allowedAmount, Date newDate, Date from);
 }

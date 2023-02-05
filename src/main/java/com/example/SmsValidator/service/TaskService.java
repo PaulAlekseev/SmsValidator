@@ -3,18 +3,16 @@ package com.example.SmsValidator.service;
 import com.example.SmsValidator.bean.task.TaskBaseResponse;
 import com.example.SmsValidator.bean.task.TaskErrorResponse;
 import com.example.SmsValidator.bean.task.TaskSuccessResponse;
+import com.example.SmsValidator.config.SocketConfiguration;
 import com.example.SmsValidator.entity.*;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.model.Task;
 import com.example.SmsValidator.repository.*;
 import com.example.SmsValidator.socket.MessageFormer;
 import com.example.SmsValidator.socket.OutCommands;
-import com.example.SmsValidator.socket.SocketConfiguration;
 import com.example.SmsValidator.socket.container.ModemCheckOutContainer;
-import com.example.SmsValidator.socket.container.ModemMessageOutContainer;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -24,7 +22,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,20 +42,47 @@ public class TaskService {
     public ModemEntity getAvailableModem(ServiceTypeEntity serviceType) {
         LocalDate currentDate = LocalDate.now();
         Date newDate = Date.from(currentDate.minusDays(serviceType.getDaysBetween()).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        UsedServiceTypeEntity usedServiceTypeEntity = userServiceRepository.
-                findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseOrderByTimesUsedDesc(
+        UsedServiceTypeEntity usedServiceTypeEntity = userServiceRepository
+//                .findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseOrderByTimesUsedDesc(
+                .findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseAndModemEntity_ModemProviderSessionEntity_ActiveTrueAndModemEntity_ModemProviderSessionEntity_BusyFalseOrderByIdDescTimesUsedDesc(
+                        serviceType.getId(),
+                        serviceType.getAllowedAmount(),
+//                        new Date(),
+                        newDate,
+                        new Date()
+//                        Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                );
+        return usedServiceTypeEntity == null ?
+                null :
+                usedServiceTypeEntity.getModemEntity();
+    }
+
+    public int getAmountOfAvailableServices(ServiceTypeEntity serviceType) {
+        LocalDate currentDate = LocalDate.now();
+        Date newDate = Date.from(currentDate.minusDays(serviceType.getDaysBetween()).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        return userServiceRepository
+                .findByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseAndModemEntity_ModemProviderSessionEntity_ActiveTrueAndModemEntity_ModemProviderSessionEntity_BusyFalseOrderByIdDescTimesUsedDesc(
                         serviceType.getId(),
                         serviceType.getAllowedAmount(),
                         newDate,
-                        Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
-                );
-        return usedServiceTypeEntity != null ?
-                usedServiceTypeEntity.getModemEntity() :
-                modemEntityRepository.
-                        findFirstByBusyFalseAndTaskEntity_ModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyAndReservedUntilLessThanOrderByIdDesc(
-                                new Date()
-                        );
+                        new Date()
+//                        Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+                ).size();
     }
+
+
+//                .findFirstByServiceType_IdAndTimesUsedLessThanAndLastTimeUsedLessThanEqualAndModemEntity_ReservedUntilLessThanAndModemEntity_BusyFalseOrderByTimesUsedDesc(
+//                        serviceType.getId(),
+//                        serviceType.getAllowedAmount(),
+//                        newDate,
+//                        Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+//                );
+//        return usedServiceTypeEntity != null ?
+//                usedServiceTypeEntity.getModemEntity() :
+//                modemEntityRepository
+//                        .findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_ServiceType_IdNotAndReservedUntilLessThanOrderByIdDesc(serviceType.getId(), new Date());
+//                        .findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityListEmptyAndReservedUntilLessThanOrderByIdDesc(new Date());
+//    }
 
     public ModemEntity getAvailableModem(Long serviceEntityId) {
         return getAvailableModem(serviceRepository.findById(serviceEntityId).get());
@@ -77,14 +101,11 @@ public class TaskService {
         return createReservedTask(serviceId, modem, user);
     }
 
-    public TaskBaseResponse createTask(Long serviceId, Principal principal) {
-        return createTask(serviceId, userRepository.findFirstByEmail(principal.getName()));
-    }
-
     public TaskBaseResponse createReservedTask(Long serviceId, Long modemId, Principal principal) {
         ModemEntity modem = modemEntityRepository.findFirstById(modemId);
-        User user = userRepository.findFirstByEmail(principal.getName());
         if (modem == null) return new TaskErrorResponse("Could not found such modem");
+        if (modem.getBusy()) return new TaskErrorResponse("Modem is busy right now");
+        User user = userRepository.findFirstByEmail(principal.getName());
         return createReservedTask(serviceId, modem, user);
     }
 
@@ -120,37 +141,44 @@ public class TaskService {
         );
     }
 
+    public TaskBaseResponse createTask(Long serviceId, Principal principal) {
+        return createTask(serviceId, userRepository.findFirstByEmail(principal.getName()));
+    }
+
     public TaskBaseResponse createTask(Long serviceId, User user) {
-        TaskEntity task = new TaskEntity();
-        ServiceTypeEntity serviceType = serviceRepository.findById(serviceId).get();
-        task.setServiceTypeEntity(serviceType);
-        ModemEntity chosenModem = getAvailableModem(serviceType);
-        if (chosenModem == null) {
-            return new TaskErrorResponse("Could not find modem for task");
-        }
-        ModemProviderSessionEntity chosenProvider = providerSessionRepository.findByModemEntityList_Id(chosenModem.getId());
-        task.setModemEntity(chosenModem);
-        task.setModemProviderSessionEntity(chosenProvider);
-        task.setTimeSeconds(serviceType.getTimeSeconds());
-        task.setUser(user);
-        task.setReserved(false);
-        WebSocketSession chosenSession = socketConfiguration.
-                getSocketHandler().
-                getSessions().
-                get(chosenProvider.getSocketId());
-        TaskEntity resultTask = taskRepo.save(task);
-        resultTask.setMessages(new ArrayList<>());
-        ModemCheckOutContainer container = new ModemCheckOutContainer(resultTask.getId(), Modem.toModel(chosenModem));
-        Gson gson = new Gson();
         try {
+            TaskEntity task = new TaskEntity();
+            ServiceTypeEntity serviceType = serviceRepository
+                    .findById(serviceId)
+                    .orElseThrow(() -> new Exception("Could not find such Service"));
+            task.setServiceTypeEntity(serviceType);
+            ModemEntity chosenModem = getAvailableModem(serviceType);
+            if (chosenModem == null) {
+                return new TaskErrorResponse("Could not find modem for task");
+            }
+            ModemProviderSessionEntity chosenProvider = providerSessionRepository.findByModemEntityList_Id(chosenModem.getId());
+            task.setModemEntity(chosenModem);
+            task.setModemProviderSessionEntity(chosenProvider);
+            task.setTimeSeconds(serviceType.getTimeSeconds());
+            task.setUser(user);
+            task.setReserved(false);
+            WebSocketSession chosenSession = socketConfiguration.
+                    getSocketHandler().
+                    getSessions().
+                    get(chosenProvider.getSocketId());
+            TaskEntity resultTask = taskRepo.save(task);
+            resultTask.setMessages(new ArrayList<>());
+
+            ModemCheckOutContainer container = new ModemCheckOutContainer(resultTask.getId(), Modem.toModel(chosenModem));
+            Gson gson = new Gson();
             chosenSession.sendMessage(MessageFormer.formMessage(OutCommands.CHECK_MODEM, gson.toJson(container)));
             modemEntityRepository.
                     updateBusyByPhoneNumberAndModemProviderSessionEntity(
                             true, chosenModem.getPhoneNumber(), chosenProvider);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new TaskSuccessResponse(Modem.toModel(chosenModem), Task.toModel(task));
+        } catch (Exception e) {
+            return new TaskErrorResponse(e.getLocalizedMessage());
         }
-        return new TaskSuccessResponse(Modem.toModel(chosenModem), Task.toModel(task));
     }
 
 
@@ -179,7 +207,7 @@ public class TaskService {
         Task task = Task.toModel(taskEntity);
         Modem modem = Modem.toModel(taskEntity.getModemEntity());
         return modemEntity == null ?
-                new TaskErrorResponse("Task does not exist"):
+                new TaskErrorResponse("Task does not exist") :
                 new TaskSuccessResponse(Modem.toClientModem(modemEntity), Task.toModel(taskEntity));
     }
 }

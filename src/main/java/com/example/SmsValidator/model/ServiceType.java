@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ServiceType {
+    private Long id;
     private String name;
     private int allowedAmount;
     private int daysBetween;
@@ -16,6 +17,7 @@ public class ServiceType {
 
     public static ServiceType toModel(ServiceTypeEntity serviceTypeEntity) {
         ServiceType serviceType = new ServiceType();
+        serviceType.setId(serviceTypeEntity.getId());
         serviceType.setName(serviceTypeEntity.getName());
         serviceType.setDaysBetween(serviceTypeEntity.getDaysBetween());
         serviceType.setAllowedAmount(serviceTypeEntity.getAllowedAmount());

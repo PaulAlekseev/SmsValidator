@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TaskEntityRepository extends CrudRepository<TaskEntity, Long> {
+    @Transactional
+    @Modifying
+    @Query("update TaskEntity t set t.success = ?1 where t.id = ?2")
+    int updateSuccessById(boolean success, Long id);
     TaskEntity findFirstById(Long id);
     boolean existsByIdAndReservedTrue(Long id);
     List<TaskEntity> findByUser_EmailAndReadyTrueOrderByIdDesc(String email);

@@ -10,6 +10,7 @@ import com.example.SmsValidator.socket.container.CheckProviderOutContainer;
 import com.example.SmsValidator.socket.container.ModemCheckOutContainer;
 import com.example.SmsValidator.socket.container.UpdateModemOnPortContainer;
 import com.google.gson.Gson;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -23,37 +24,33 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class SocketService {
-    @Autowired
-    private ModemProviderSessionEntityRepository modemProviderSessionRepo;
-    @Autowired
-    private ModemEntityRepository modemEntityRepository;
-    @Autowired
-    private TaskEntityRepository taskEntityRepository;
 
-    @Autowired
-    private TaskService taskService;
-    @Autowired
-    private MessageEntityRepository messageEntityRepository;
-    @Autowired
-    private ServiceTypeEntityRepository serviceTypeEntityRepository;
-    @Autowired
-    private UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
+    private final ModemProviderSessionEntityRepository modemProviderSessionRepo;
+    private final ModemEntityRepository modemEntityRepository;
+    private final TaskEntityRepository taskEntityRepository;
+    private final TaskService taskService;
+    private final MessageEntityRepository messageEntityRepository;
+    private final ServiceTypeEntityRepository serviceTypeEntityRepository;
+    private final UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
 
     public TaskEntity getTaskById(Long id) {
         return taskEntityRepository.findById(id).get();
     }
 
     public void handleTaskDone(TaskEntity task) {
-        UsedServiceTypeEntity usedServiceType = usedServiceTypeEntityRepository.
-                findByTaskEntity_ModemEntity_Id(task.getModemEntity().getId());
+        UsedServiceTypeEntity usedServiceType = usedServiceTypeEntityRepository
+                .findFirstByModemEntity_IdAndServiceType_Id(task.getModemEntity().getId(), task.getServiceTypeEntity().getId());
+//                .findByTaskEntity_ModemEntity_Id(task.getModemEntity().getId());
         if (usedServiceType == null) {
-            usedServiceType = new UsedServiceTypeEntity();
-            usedServiceType.setServiceType(task.getServiceTypeEntity());
-            usedServiceType.setModemEntity(task.getModemEntity());
+            return;
         } else {
-            usedServiceType.setTimesUsed(usedServiceType.getTimesUsed() + 1);
-            usedServiceType.setLastTimeUsed(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            int plusTimes = task.isSuccess() ? 1 : 0;
+            usedServiceType.setTimesUsed(usedServiceType.getTimesUsed() + plusTimes);
+            if (plusTimes > 0) {
+                usedServiceType.setLastTimeUsed(Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            }
         }
         usedServiceTypeEntityRepository.save(usedServiceType);
         task.setUsedServiceTypeEntity(usedServiceType);
@@ -66,6 +63,7 @@ public class SocketService {
     }
 
     private int setTaskDone(TaskEntity task, ModemProviderSessionEntity providerSession) {
+        if (task.isDone()) return 1;
         if (task.isReady()) handleTaskDone(task);
         return taskEntityRepository.
                 updateDoneByIdAndModemProviderSessionEntity(true, task.getId(), providerSession);
@@ -184,9 +182,25 @@ public class SocketService {
         List<String> existingNumbers = modemEntityRepository.findByPhoneNumberIn(
                 modems.stream().map(ModemEntity::getPhoneNumber).collect(Collectors.toList())
         ).stream().map(ModemEntity::getPhoneNumber).toList();
-        return (List<ModemEntity>) modemEntityRepository.saveAll(modems.stream().filter(
+        List<ModemEntity> newModems =  (List<ModemEntity>) modemEntityRepository.saveAll(modems.stream().filter(
                 m -> !existingNumbers.contains(m.getPhoneNumber())).collect(Collectors.toList()
         ));
+        createNewUsedServices(newModems);
+        return newModems;
+    }
+
+    private List<UsedServiceTypeEntity> createNewUsedServices(List<ModemEntity> newModems) {
+        List<ServiceTypeEntity> services = (List<ServiceTypeEntity>) serviceTypeEntityRepository.findAll();
+        List<UsedServiceTypeEntity> resultUsedServices = new ArrayList<>();
+        for (ModemEntity modem : newModems) {
+            for (ServiceTypeEntity serviceType : services) {
+                UsedServiceTypeEntity newUsedServiceType = new UsedServiceTypeEntity();
+                newUsedServiceType.setServiceType(serviceType);
+                newUsedServiceType.setModemEntity(modem);
+                resultUsedServices.add(newUsedServiceType);
+            }
+        }
+        return (List<UsedServiceTypeEntity>) usedServiceTypeEntityRepository.saveAll(resultUsedServices);
     }
 
     public ModemEntity getModemWithIMSIAndICCID(ModemEntity modem) {
@@ -251,10 +265,15 @@ public class SocketService {
             Matcher senderMatcher = senderRegex.matcher(message.getSender());
             if (!senderMatcher.find()) continue;
             message.setTaskEntity(task);
+            setTaskSuccess(taskId);
             setTaskDone(task, providerSession);
             messageEntityRepository.save(message);
         }
         return 1;
+    }
+
+    public int setTaskSuccess(Long taskId) {
+        return taskEntityRepository.updateSuccessById(true, taskId);
     }
 
 

@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UsedServiceTypeEntity {
 
-    private int timesUsed = 1;
+    private int timesUsed = 0;
     private Date lastTimeUsed = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

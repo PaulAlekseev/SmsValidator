@@ -25,5 +25,5 @@ logging:
 auth:
   token:
     secret: ljhdslghiopbmispvgspmvgjcaqdfsojdh1uh980fudh178rfh234897fh92378f8
-    auth-expiration: 3600000
-    refresh-expiration: 3650000
+    auth-expiration: 36000000000
+    refresh-expiration: 365000000000

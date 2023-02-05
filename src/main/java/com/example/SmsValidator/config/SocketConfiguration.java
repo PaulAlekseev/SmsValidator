@@ -1,5 +1,6 @@
-package com.example.SmsValidator.socket;
+package com.example.SmsValidator.config;
 
+import com.example.SmsValidator.socket.ModemSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

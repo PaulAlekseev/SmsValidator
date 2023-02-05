@@ -3,6 +3,7 @@ package com.example.SmsValidator.controller;
 import com.example.SmsValidator.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,18 +18,18 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("getBalance")
-    public ResponseEntity<?> getBalance(Principal principal) {
-        return ResponseEntity.ok(userService.getBalance(principal.getName()));
+    @GetMapping("getInfo")
+    public ResponseEntity<?> getBalance() {
+        return ResponseEntity.ok(userService.getUserInfo(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 
     @GetMapping("getTaskHistory")
-    public ResponseEntity<?> getTaskHistory(Principal principal) {
-        return ResponseEntity.ok(userService.getTaskHistory(principal));
+    public ResponseEntity<?> getTaskHistory() {
+        return ResponseEntity.ok(userService.getTaskHistory(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 
     @GetMapping("getActiveTasks")
-    public ResponseEntity<?> getActiveTasks(Principal principal) {
-        return ResponseEntity.ok(userService.getActiveTaskHistory(principal));
+    public ResponseEntity<?> getActiveTasks() {
+        return ResponseEntity.ok(userService.getActiveTaskHistory(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 }
