@@ -7,6 +7,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ModemProviderSessionEntityRepository extends CrudRepository<ModemProviderSessionEntity, Long> {
+    ModemProviderSessionEntity findByUser_EmailAndActiveTrue(String email);
+    ModemProviderSessionEntity findByUser_EmailAndActiveTrueAndBusyTrue(String email);
+    ModemProviderSessionEntity findFirstByUser_EmailAndActiveTrueAndBusyFalse(String email);
     @Transactional
     @Modifying
     @Query("update ModemProviderSessionEntity m set m.busy = ?1 where m.active = true and m.socketId = ?2")

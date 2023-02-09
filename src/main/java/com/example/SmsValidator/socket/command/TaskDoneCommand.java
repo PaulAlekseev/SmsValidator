@@ -18,5 +18,6 @@ public class TaskDoneCommand extends Command{
         Gson gson = new Gson();
         TaskDoneInContainer container = gson.fromJson(json, TaskDoneInContainer.class);
         service.setTaskDone(container.getTaskId(), modemProviderSession);
+        service.disconnectModemOnProviderBusy(container.getTaskId());
     }
 }

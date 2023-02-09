@@ -1,6 +1,8 @@
 package com.example.SmsValidator.controller;
 
+import com.example.SmsValidator.bean.servicetype.CreateNewServiceRequest;
 import com.example.SmsValidator.service.ModemService;
+import com.example.SmsValidator.service.ServiceTypeService;
 import com.example.SmsValidator.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,11 +10,17 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/api/vi/admin/")
+@RequestMapping(path = "/api/v1/admin/")
 public class AdminController {
 
     private final TaskService taskService;
     private final ModemService modemService;
+    private final ServiceTypeService serviceTypeService;
+
+    @PostMapping(path = "createService")
+    public ResponseEntity<?> createService(@RequestBody CreateNewServiceRequest serviceRequest) {
+        return ResponseEntity.ok(serviceTypeService.createNewService(serviceRequest));
+    }
 
     @PostMapping(path = "create")
     public ResponseEntity<?> createTask(@RequestParam Long telegramId,
@@ -40,6 +48,6 @@ public class AdminController {
 
     @GetMapping(path = "getReservedModem")
     public ResponseEntity<?> getReservedModems(@RequestParam Long telegramId) {
-        return  ResponseEntity.ok(modemService.getReservedModems(telegramId));
+        return ResponseEntity.ok(modemService.getReservedModems(telegramId));
     }
 }

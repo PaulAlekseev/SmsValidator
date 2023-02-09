@@ -22,8 +22,8 @@ public class ModemProviderSessionEntity {
     private Boolean active;
 
     @ManyToOne
-    @JoinColumn(name = "modem_provider")
-    private ModemProviderEntity modemProvider;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToMany(cascade = CascadeType.DETACH, mappedBy = "modemProviderSessionEntity")
     private List<TaskEntity> taskEntityList;

@@ -1,5 +1,6 @@
 package com.example.SmsValidator.service;
 
+import com.example.SmsValidator.auth.JwtTokenProvider;
 import com.example.SmsValidator.entity.*;
 import com.example.SmsValidator.exception.ModemProviderSessionAlreadyActiveException;
 import com.example.SmsValidator.model.Modem;
@@ -12,6 +13,8 @@ import com.example.SmsValidator.socket.container.UpdateModemOnPortContainer;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -34,6 +37,8 @@ public class SocketService {
     private final MessageEntityRepository messageEntityRepository;
     private final ServiceTypeEntityRepository serviceTypeEntityRepository;
     private final UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
+    private final UserRepository userRepository;
+    private final JwtTokenProvider tokenProvider;
 
     public TaskEntity getTaskById(Long id) {
         return taskEntityRepository.findById(id).get();
@@ -60,6 +65,14 @@ public class SocketService {
     public int setTaskDone(Long taskId, ModemProviderSessionEntity providerSession) {
         TaskEntity task = taskEntityRepository.findByIdAndModemProviderSessionEntity(taskId, providerSession);
         return setTaskDone(task, providerSession);
+    }
+
+    public int disconnectModemOnProviderBusy(long taskId) {
+        ModemEntity modemEntity =  modemEntityRepository.findByTaskEntity_IdAndModemProviderSessionEntity_BusyTrue(taskId);
+        if(modemEntity == null) {
+            return 0;
+        }
+        return modemEntityRepository.updateModemProviderSessionEntityById(null ,modemEntity.getId());
     }
 
     private int setTaskDone(TaskEntity task, ModemProviderSessionEntity providerSession) {
@@ -90,7 +103,9 @@ public class SocketService {
                 updateBusyBySocketIdAndActiveTrue(false, modemProviderSession.getSocketId());
     }
 
-    public ModemProviderSessionEntity createModemProviderSession(ModemProviderSessionEntity modemProviderSessionEntity) throws ModemProviderSessionAlreadyActiveException {
+    public ModemProviderSessionEntity createModemProviderSession(ModemProviderSessionEntity modemProviderSessionEntity, String token) throws ModemProviderSessionAlreadyActiveException {
+        User user = userRepository.findFirstByEmail(tokenProvider.getUserName(token));
+        modemProviderSessionEntity.setUser(user);
         if (!modemProviderSessionRepo.
                 existsBySocketIdAndActiveTrue(modemProviderSessionEntity.getSocketId())) {
             return modemProviderSessionRepo.save(modemProviderSessionEntity);
@@ -312,8 +327,8 @@ public class SocketService {
     }
 
     public int disconnectNotBusyModems(ModemProviderSessionEntity providerSession) {
-        return modemEntityRepository.
-                updateModemProviderSessionEntityByModemProviderSessionEntityAndBusyTrue(
+        return modemEntityRepository
+                .updateModemProviderSessionEntityByModemProviderSessionEntityAndBusyFalse(
                         null, providerSession);
     }
 

@@ -1,12 +1,11 @@
 package com.example.SmsValidator.service;
 
-import com.example.SmsValidator.bean.servicetype.GetAmountOfAllowedModemBaseResponse;
-import com.example.SmsValidator.bean.servicetype.GetAllowedServiceTypesResponse;
-import com.example.SmsValidator.bean.servicetype.GetAmountOfAllowedModemErrorResponse;
-import com.example.SmsValidator.bean.servicetype.GetAmountOfAllowedModemSuccessResponse;
+import com.example.SmsValidator.bean.servicetype.*;
 import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.ServiceTypeEntity;
+import com.example.SmsValidator.entity.UsedServiceTypeEntity;
 import com.example.SmsValidator.model.ServiceType;
+import com.example.SmsValidator.repository.ModemEntityRepository;
 import com.example.SmsValidator.repository.ServiceTypeEntityRepository;
 import com.example.SmsValidator.repository.UsedServiceTypeEntityRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +27,7 @@ public class ServiceTypeService {
     private final ServiceTypeEntityRepository serviceTypeRepository;
     private final UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
     private final TaskService taskService;
+    private final ModemEntityRepository modemEntityRepository;
 
     public GetAllowedServiceTypesResponse getActiveServices() {
         List<ServiceTypeEntity> activeServices = serviceTypeRepository.findByActiveTrue();
@@ -34,6 +35,38 @@ public class ServiceTypeService {
                 .stream()
                 .map(ServiceType::toModel)
                 .collect(Collectors.toList()));
+    }
+
+    public ServiceTypeEntity createNewServiceEntity(CreateNewServiceRequest request) {
+        ServiceTypeEntity newService = new ServiceTypeEntity();
+        newService.setActive(true);
+        newService.setName(request.getName());
+        newService.setAllowedAmount(request.getAllowedAmount());
+        newService.setDaysBetween(request.getDaysBetween());
+        newService.setMessageRegex(request.getMessageRegex());
+        newService.setSenderRegex(request.getSenderRegex());
+        newService.setTimeSeconds(request.getTimeSeconds());
+        return serviceTypeRepository.save(newService);
+    }
+
+    public List<UsedServiceTypeEntity> createUsedServices(ServiceTypeEntity serviceType) {
+        List<ModemEntity> modems = (List<ModemEntity>) modemEntityRepository.findAll();
+        List<UsedServiceTypeEntity> newUsedServices = new ArrayList<>();
+        for (ModemEntity modem : modems) {
+            UsedServiceTypeEntity usedServiceTypeEntity = new UsedServiceTypeEntity();
+            usedServiceTypeEntity.setModemEntity(modem);
+            usedServiceTypeEntity.setServiceType(serviceType);
+            newUsedServices.add(usedServiceTypeEntity);
+        }
+        return (List<UsedServiceTypeEntity>) usedServiceTypeEntityRepository.saveAll(newUsedServices);
+    }
+
+    public CreateNewServiceBaseResponse createNewService(CreateNewServiceRequest request) {
+        ServiceTypeEntity newService = createNewServiceEntity(request);
+        createUsedServices(newService);
+        CreateNewServiceSuccessResponse response = new CreateNewServiceSuccessResponse();
+        response.setServiceType(newService);
+        return response;
     }
 
 //    public ModemEntity getIfAllowedModemExists(ServiceTypeEntity serviceType) {

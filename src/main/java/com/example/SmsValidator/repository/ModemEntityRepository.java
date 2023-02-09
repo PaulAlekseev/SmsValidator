@@ -11,8 +11,20 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long> {
+    @Transactional
+    @Modifying
+    @Query("""
+            update ModemEntity m set m.modemProviderSessionEntity = ?1
+            where m.modemProviderSessionEntity = ?2 and m.busy = false""")
+    int updateModemProviderSessionEntityByModemProviderSessionEntityAndBusyFalse(ModemProviderSessionEntity modemProviderSessionEntity, ModemProviderSessionEntity modemProviderSessionEntity1);
+    @Transactional
+    @Modifying
+    @Query("update ModemEntity m set m.modemProviderSessionEntity = ?1 where m.id = ?2")
+    int updateModemProviderSessionEntityById(ModemProviderSessionEntity modemProviderSessionEntity, Long id);
+    ModemEntity findByTaskEntity_IdAndModemProviderSessionEntity_BusyTrue(Long id);
     ModemEntity findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_TimesUsedOrderByIdDesc(int timesUsed);
     long countByUsedServiceTypeEntityList_TimesUsedLessThanOrUsedServiceTypeEntityListEmpty(int timesUsed);
     @Query("""
@@ -117,4 +129,7 @@ public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long>
     List<ModemEntity> findByPhoneNumberIn(Collection<String> phoneNumbers);
 
     ModemEntity findFirstById(Long modemId);
+
+    @Override
+    Optional<ModemEntity> findById(Long aLong);
 }

@@ -66,7 +66,6 @@ public class TaskService {
                         serviceType.getAllowedAmount(),
                         newDate,
                         new Date()
-//                        Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
                 ).size();
     }
 

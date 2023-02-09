@@ -29,6 +29,9 @@ public class User implements UserDetails {
   private String password;
   private Long telegramId;
 
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+  private List<ModemProviderSessionEntity> providerSessions;
+
   @Column(precision = 2)
   private double balance;
 
