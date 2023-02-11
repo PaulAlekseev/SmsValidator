@@ -22,6 +22,25 @@ logging:
             sql:
               BasicTinder: TRACE
 
+payment:
+  coin-remitter:
+    currency: USD
+    expireTime: 60
+    notifyUrl: https://webhook.site/4034b236-5ac5-4f13-8e10-2b68080a1553
+    invoiceUrl: https://coinremitter.com/api/v3/%s/create-invoice
+    qrUrl: https://chart.googleapis.com/chart
+    coins:
+      TCN:
+        name: TCN
+        qrName: something
+        api-key: $2y$10$a6GqThJgGjnDlxz/gEw4EuOS4Mli5yzFJBNDIQd/sAZK.Anwo7J/i
+        password: Tratata321
+      BTC:
+        name: BTC
+        qrName: bitcoin
+        api-key: $2y$10$yIat5JDRDTjvihK.jumVq.H3tAjx0OtZ8rLyM/36lvShBTMX2je8W
+        password: Tratata321
+
 auth:
   token:
     secret: ljhdslghiopbmispvgspmvgjcaqdfsojdh1uh980fudh178rfh234897fh92378f8

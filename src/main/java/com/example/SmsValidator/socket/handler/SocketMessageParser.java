@@ -1,6 +1,6 @@
 package com.example.SmsValidator.socket.handler;
 
-import com.example.SmsValidator.exception.CouldNotParseSocketMessageException;
+import com.example.SmsValidator.exception.customexceptions.socket.CouldNotParseSocketMessageException;
 import com.example.SmsValidator.socket.SocketMessage;
 
 import java.util.regex.Matcher;

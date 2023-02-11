@@ -1,7 +1,7 @@
 package com.example.SmsValidator.socket.handler;
 
 import com.example.SmsValidator.entity.ModemProviderSessionEntity;
-import com.example.SmsValidator.exception.CouldNotParseSocketMessageException;
+import com.example.SmsValidator.exception.customexceptions.socket.CouldNotParseSocketMessageException;
 import com.example.SmsValidator.service.SocketService;
 import com.example.SmsValidator.socket.SocketMessage;
 import com.example.SmsValidator.socket.command.Command;

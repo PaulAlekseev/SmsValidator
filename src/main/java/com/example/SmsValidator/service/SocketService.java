@@ -2,7 +2,7 @@ package com.example.SmsValidator.service;
 
 import com.example.SmsValidator.auth.JwtTokenProvider;
 import com.example.SmsValidator.entity.*;
-import com.example.SmsValidator.exception.ModemProviderSessionAlreadyActiveException;
+import com.example.SmsValidator.exception.customexceptions.socket.ModemProviderSessionAlreadyActiveException;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.repository.*;
 import com.example.SmsValidator.socket.MessageFormer;
@@ -12,9 +12,6 @@ import com.example.SmsValidator.socket.container.ModemCheckOutContainer;
 import com.example.SmsValidator.socket.container.UpdateModemOnPortContainer;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -44,7 +41,7 @@ public class SocketService {
         return taskEntityRepository.findById(id).get();
     }
 
-    public void handleTaskDone(TaskEntity task) {
+    public void updateUsedServiceOnSuccess(TaskEntity task) {
         UsedServiceTypeEntity usedServiceType = usedServiceTypeEntityRepository
                 .findFirstByModemEntity_IdAndServiceType_Id(task.getModemEntity().getId(), task.getServiceTypeEntity().getId());
 //                .findByTaskEntity_ModemEntity_Id(task.getModemEntity().getId());
@@ -77,7 +74,7 @@ public class SocketService {
 
     private int setTaskDone(TaskEntity task, ModemProviderSessionEntity providerSession) {
         if (task.isDone()) return 1;
-        if (task.isReady()) handleTaskDone(task);
+        if (task.isReady() && task.isSuccess()) updateUsedServiceOnSuccess(task);
         return taskEntityRepository.
                 updateDoneByIdAndModemProviderSessionEntity(true, task.getId(), providerSession);
     }
