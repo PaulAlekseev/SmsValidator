@@ -8,12 +8,15 @@ import com.example.SmsValidator.bean.refreshtoken.RefreshTokenFailResponse;
 import com.example.SmsValidator.bean.refreshtoken.RefreshTokenSuccessResponse;
 import com.example.SmsValidator.entity.Role;
 import com.example.SmsValidator.entity.User;
+import com.example.SmsValidator.exception.CustomException;
+import com.example.SmsValidator.exception.customexceptions.user.UserNotFoundException;
 import com.example.SmsValidator.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,24 +50,22 @@ public class AuthenticationService {
         return response;
     }
 
-    public AuthenticationBaseResponse authenticate(AuthenticationRequest request) {
-        try {
+    public AuthenticationBaseResponse authenticate(AuthenticationRequest request) throws Exception {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()
                     )
             );
-            User user = repository.findByEmail(request.getEmail()).get();
+            User user = repository
+                    .findByEmail(request.getEmail())
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
             String jwtToken = tokenProvider.createAuthToken(user.getUsername(), user.getRole().name());
             String jwtRefreshToken = tokenProvider.createRefreshToken(user.getUsername(), user.getRole().name());
             AuthenticationSuccessResponse response = new AuthenticationSuccessResponse();
             response.setRefreshToken(jwtRefreshToken);
             response.setAuthToken(jwtToken);
             return response;
-        } catch (AuthenticationException e) {
-            return new AuthenticationErrorResponse(e.getLocalizedMessage());
-        }
     }
 
     public RefreshTokenBaseResponse refreshToken(RefreshTokenBaseRequest request) {

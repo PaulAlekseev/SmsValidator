@@ -9,6 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +32,9 @@ public class User implements UserDetails {
   private String username;
   private String password;
   private Long telegramId;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+  private List<InvoiceEntity> invoices;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
   private List<ModemProviderSessionEntity> providerSessions;
@@ -82,5 +89,13 @@ public class User implements UserDetails {
 
   public void setReservedModems(List<ModemEntity> reservedModems) {
     this.reservedModems = reservedModems;
+  }
+
+  public List<InvoiceEntity> getInvoices() {
+    return invoices;
+  }
+
+  public void setInvoices(List<InvoiceEntity> invoices) {
+    this.invoices = invoices;
   }
 }

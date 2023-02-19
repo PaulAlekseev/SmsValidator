@@ -5,12 +5,7 @@ import com.example.SmsValidator.exception.customexceptions.payment.UnknownCoinEx
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URL;
 
 public class CoinRemitterSiteResponseProvider {
     @Getter

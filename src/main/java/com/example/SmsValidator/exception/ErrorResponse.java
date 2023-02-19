@@ -7,16 +7,19 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ErrorResponse extends BaseResponse {
+    private final boolean ok = false;
 
     private final String message;
 
     public ErrorResponse(Exception e) {
-        this.ok = false;
         this.message = e.getLocalizedMessage();
     }
 
     public ErrorResponse() {
-        this.ok = false;
         this.message = "Unknown Error";
+    }
+
+    public ErrorResponse(String errorMessage) {
+        this.message = errorMessage;
     }
 }
