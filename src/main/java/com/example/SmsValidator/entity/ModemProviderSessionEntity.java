@@ -20,7 +20,7 @@ public class ModemProviderSessionEntity {
     private String socketId;
     private Boolean active;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

@@ -7,7 +7,6 @@ import com.example.SmsValidator.bean.provider.ProviderModemsSuccessResponse;
 import com.example.SmsValidator.dto.ModemDto;
 import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.ModemProviderSessionEntity;
-import com.example.SmsValidator.exception.customexceptions.provider.CouldNotFindSuchModemException;
 import com.example.SmsValidator.exception.customexceptions.provider.ProviderSessionBusyException;
 import com.example.SmsValidator.exception.customexceptions.provider.ProviderSessionNotFoundException;
 import com.example.SmsValidator.repository.ModemEntityRepository;
@@ -17,9 +16,11 @@ import com.example.SmsValidator.socket.ModemSocketHandler;
 import com.example.SmsValidator.socket.OutCommands;
 import com.example.SmsValidator.socket.container.ProviderReadyOutContainer;
 import com.example.SmsValidator.socket.container.ProviderStopOutContainer;
+import com.example.SmsValidator.specification.ModemSpecification;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -105,8 +106,10 @@ public class ProviderService {
     public ProviderModemsSuccessResponse getProvidersWorkingModems() {
         ModelMapper mapper = new ModelMapper();
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Specification<ModemEntity> modemSpecification = ModemSpecification.hasModemProviderSession_User_Email(email)
+                .and(ModemSpecification.withTasks());
         List<ModemDto> data = modemEntityRepository
-                .findByModemProviderSessionEntity_User_Email(email)
+                .findAll(modemSpecification)
                 .stream().map(entity -> mapper.map(entity, ModemDto.class))
                 .toList();
         return ProviderModemsSuccessResponse.builder()

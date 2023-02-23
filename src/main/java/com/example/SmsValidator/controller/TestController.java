@@ -1,12 +1,17 @@
 package com.example.SmsValidator.controller;
 
+import com.example.SmsValidator.dto.ModemDto;
 import com.example.SmsValidator.entity.InvoiceEntity;
+import com.example.SmsValidator.entity.ModemEntity;
+import com.example.SmsValidator.entity.ModemEntity_;
 import com.example.SmsValidator.entity.User;
-import com.example.SmsValidator.entity.projection.UserDto;
 import com.example.SmsValidator.repository.InvoiceEntityRepository;
+import com.example.SmsValidator.repository.ModemEntityRepository;
+import com.example.SmsValidator.repository.ModemProviderSessionEntityRepository;
 import com.example.SmsValidator.repository.UserRepository;
 import com.example.SmsValidator.service.PaymentService;
 import com.example.SmsValidator.service.ProviderService;
+import com.example.SmsValidator.specification.ModemSpecification;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +31,8 @@ public class TestController {
     private final UserRepository userRepository;
     private final InvoiceEntityRepository invoiceEntityRepository;
     private final ProviderService providerService;
+    private final ModemProviderSessionEntityRepository modemProviderSessionEntityRepository;
+    private final ModemEntityRepository modemEntityRepository;
 
     @PostMapping("createInvoice")
     public ResponseEntity<?> createInvoice(@RequestParam int amount) throws Exception {
@@ -33,6 +40,20 @@ public class TestController {
                 userRepository.findFirstByEmail(SecurityContextHolder.getContext().getAuthentication().getName()),
                 amount
         ));
+    }
+
+    @PostMapping("test")
+    public ResponseEntity<?> test(@RequestParam int id) {
+        ModelMapper modelMapper = new ModelMapper();
+        List<ModemDto> modem = modemEntityRepository
+                .findAll(
+                        ModemSpecification.hasModemProviderSessionId((long) id).and(
+                                ModemSpecification.withTasks())
+                )
+                .stream()
+                .map((entity) -> modelMapper.map(entity, ModemDto.class))
+                .toList();
+        return ResponseEntity.ok(modem);
     }
 
     @GetMapping("things")
