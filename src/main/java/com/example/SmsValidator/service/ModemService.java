@@ -2,6 +2,7 @@ package com.example.SmsValidator.service;
 
 import com.example.SmsValidator.bean.reservemodem.*;
 import com.example.SmsValidator.entity.ModemEntity;
+import com.example.SmsValidator.entity.ModemProviderSessionEntity;
 import com.example.SmsValidator.entity.User;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.repository.ModemEntityRepository;
@@ -70,4 +71,6 @@ public class ModemService {
     public GetOwnReservedModemBaseResponse getReservedModems(Principal principal) {
         return getReservedModems(userRepository.findFirstByEmail(principal.getName()));
     }
+
+
 }

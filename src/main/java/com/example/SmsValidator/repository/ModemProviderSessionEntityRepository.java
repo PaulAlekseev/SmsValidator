@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 public interface ModemProviderSessionEntityRepository extends CrudRepository<ModemProviderSessionEntity, Long> {
-    ModemProviderSessionEntity findByUser_EmailAndActiveTrue(String email);
+    Optional<ModemProviderSessionEntity> findByUser_UsernameAndActiveTrue(String username);
     ModemProviderSessionEntity findByUser_EmailAndActiveTrueAndBusyTrue(String email);
     ModemProviderSessionEntity findFirstByUser_EmailAndActiveTrueAndBusyFalse(String email);
     @Transactional

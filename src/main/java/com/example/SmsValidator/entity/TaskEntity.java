@@ -17,6 +17,8 @@ public class TaskEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    private String serviceName;
+    private int cost;
     private boolean ready;
     private boolean done;
     private Long timeSeconds;
@@ -45,8 +47,4 @@ public class TaskEntity {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "taskEntity")
     private List<MessageEntity> messages;
-
-    @OneToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "inner_invoice_id", referencedColumnName = "id")
-    private InnerInvoiceEntity innerInvoice;
 }
