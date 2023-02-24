@@ -3,6 +3,7 @@ package com.example.SmsValidator.specification;
 import com.example.SmsValidator.entity.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 public class ModemSpecification {
@@ -53,6 +54,20 @@ public class ModemSpecification {
             Join<User, ModemProviderSessionEntity> userJoin = join
                     .join(ModemProviderSessionEntity_.USER);
             return criteriaBuilder.equal(userJoin.get(User_.EMAIL), email);
+        });
+    }
+
+    public static Specification<ModemEntity> hasRevenueMoreThan(int amount) {
+        return ((root, query, criteriaBuilder) -> {
+            Join<ModemEntity, TaskEntity> join = root.join(ModemEntity_.TASK_ENTITY);
+            Predicate taskIsSuccess = criteriaBuilder.isTrue(join.get(TaskEntity_.SUCCESS));
+            Predicate taskIsDone = criteriaBuilder.isTrue(join.get(TaskEntity_.DONE));
+            Predicate taskIsDoneAndSuccess = criteriaBuilder.and(taskIsSuccess, taskIsDone);
+            Predicate finalPredicate = criteriaBuilder.
+                    greaterThanOrEqualTo(criteriaBuilder.sum(criteriaBuilder.<Integer>selectCase().when(taskIsDoneAndSuccess, join.get(TaskEntity_.COST)).otherwise(0)), amount);
+
+            query.groupBy(root.get("id")).having(finalPredicate);
+            return null;
         });
     }
 }

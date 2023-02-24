@@ -2,8 +2,6 @@ package com.example.SmsValidator.controller;
 
 import com.example.SmsValidator.dto.ModemDto;
 import com.example.SmsValidator.entity.InvoiceEntity;
-import com.example.SmsValidator.entity.ModemEntity;
-import com.example.SmsValidator.entity.ModemEntity_;
 import com.example.SmsValidator.entity.User;
 import com.example.SmsValidator.repository.InvoiceEntityRepository;
 import com.example.SmsValidator.repository.ModemEntityRepository;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "api/v1/test/")
@@ -43,12 +40,13 @@ public class TestController {
     }
 
     @PostMapping("test")
-    public ResponseEntity<?> test(@RequestParam int id) {
+    public ResponseEntity<?> test(@RequestParam int id, @RequestParam int revenue) {
         ModelMapper modelMapper = new ModelMapper();
         List<ModemDto> modem = modemEntityRepository
                 .findAll(
-                        ModemSpecification.hasModemProviderSessionId((long) id).and(
-                                ModemSpecification.withTasks())
+                        ModemSpecification.hasModemProviderSessionId((long) id)
+                                .and(ModemSpecification.withTasks())
+                                .and(ModemSpecification.hasRevenueMoreThan(revenue))
                 )
                 .stream()
                 .map((entity) -> modelMapper.map(entity, ModemDto.class))
