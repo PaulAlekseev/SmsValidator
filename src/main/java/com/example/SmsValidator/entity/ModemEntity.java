@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -33,7 +34,7 @@ public class ModemEntity {
     private List<UsedServiceTypeEntity> usedServiceTypeEntityList;
 
     @OneToMany(cascade = CascadeType.DETACH, mappedBy = "modemEntity")
-    private List<TaskEntity> taskEntity;
+    private Set<TaskEntity> taskEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modem_provider_session")

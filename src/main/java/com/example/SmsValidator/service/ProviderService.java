@@ -28,6 +28,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -111,6 +112,21 @@ public class ProviderService {
         List<ModemDto> data = modemEntityRepository
                 .findAll(modemSpecification)
                 .stream().map(entity -> mapper.map(entity, ModemDto.class))
+                .toList();
+        return ProviderModemsSuccessResponse.builder()
+                .data(data)
+                .build();
+    }
+
+    public ProviderModemsSuccessResponse getProvidersModemsOnRevenue(int revenue) {
+        ModelMapper modelMapper = new ModelMapper();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Specification<ModemEntity> modemSpecification = ModemSpecification
+                .hasModemProviderSession_User_Email(email)
+                .and(ModemSpecification.hasRevenueMoreThan(revenue));
+        List<ModemDto> data = modemEntityRepository
+                .findAll(modemSpecification)
+                .stream().map(entity -> modelMapper.map(entity, ModemDto.class))
                 .toList();
         return ProviderModemsSuccessResponse.builder()
                 .data(data)

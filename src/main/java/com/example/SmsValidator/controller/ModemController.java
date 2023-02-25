@@ -1,6 +1,7 @@
 package com.example.SmsValidator.controller;
 
 import com.example.SmsValidator.bean.reservemodem.ReserveModemRequest;
+import com.example.SmsValidator.exception.customexceptions.modem.ModemNotFoundException;
 import com.example.SmsValidator.service.ModemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,8 @@ public class ModemController {
     private final ModemService modemService;
 
     @PostMapping(path = "reserve")
-    public ResponseEntity<?> reserveModem(Principal principal, @RequestBody ReserveModemRequest request) {
+    public ResponseEntity<?> reserveModem(Principal principal, @RequestBody ReserveModemRequest request)
+            throws ModemNotFoundException {
         return ResponseEntity.ok(modemService.reserveModem(principal, request.getReserveFor()));
     }
 

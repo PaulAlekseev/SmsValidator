@@ -3,10 +3,12 @@ package com.example.SmsValidator.controller;
 import com.example.SmsValidator.dto.ModemDto;
 import com.example.SmsValidator.entity.InvoiceEntity;
 import com.example.SmsValidator.entity.User;
+import com.example.SmsValidator.exception.customexceptions.modem.ModemNotFoundException;
 import com.example.SmsValidator.repository.InvoiceEntityRepository;
 import com.example.SmsValidator.repository.ModemEntityRepository;
 import com.example.SmsValidator.repository.ModemProviderSessionEntityRepository;
 import com.example.SmsValidator.repository.UserRepository;
+import com.example.SmsValidator.service.ModemService;
 import com.example.SmsValidator.service.PaymentService;
 import com.example.SmsValidator.service.ProviderService;
 import com.example.SmsValidator.specification.ModemSpecification;
@@ -30,6 +32,7 @@ public class TestController {
     private final ProviderService providerService;
     private final ModemProviderSessionEntityRepository modemProviderSessionEntityRepository;
     private final ModemEntityRepository modemEntityRepository;
+    private final ModemService modemService;
 
     @PostMapping("createInvoice")
     public ResponseEntity<?> createInvoice(@RequestParam int amount) throws Exception {
@@ -39,18 +42,26 @@ public class TestController {
         ));
     }
 
-    @PostMapping("test")
+    @GetMapping("test")
     public ResponseEntity<?> test(@RequestParam int id, @RequestParam int revenue) {
         ModelMapper modelMapper = new ModelMapper();
         List<ModemDto> modem = modemEntityRepository
                 .findAll(
                         ModemSpecification.hasModemProviderSessionId((long) id)
-                                .and(ModemSpecification.withTasks())
+//                                .and(ModemSpecification.withTasks())
                                 .and(ModemSpecification.hasRevenueMoreThan(revenue))
+
                 )
                 .stream()
                 .map((entity) -> modelMapper.map(entity, ModemDto.class))
                 .toList();
+        return ResponseEntity.ok(modem);
+    }
+
+    @GetMapping("testModem")
+    public ResponseEntity<?> testModem() throws ModemNotFoundException {
+        ModelMapper modelMapper = new ModelMapper();
+        ModemDto modem = modelMapper.map(modemService.getAvailableForReserveModem(), ModemDto.class);
         return ResponseEntity.ok(modem);
     }
 

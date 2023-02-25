@@ -1,6 +1,7 @@
 package com.example.SmsValidator.controller;
 
 import com.example.SmsValidator.bean.servicetype.CreateNewServiceRequest;
+import com.example.SmsValidator.exception.customexceptions.modem.ModemNotFoundException;
 import com.example.SmsValidator.service.ModemService;
 import com.example.SmsValidator.service.ServiceTypeService;
 import com.example.SmsValidator.service.TaskService;
@@ -42,7 +43,8 @@ public class AdminController {
 
     @PostMapping(path = "reserveModem")
     public ResponseEntity<?> reserveModem(@RequestParam Long telegramId,
-                                          @RequestParam int daysToReserve) {
+                                          @RequestParam int daysToReserve)
+            throws ModemNotFoundException {
         return ResponseEntity.ok(modemService.reserveModem(telegramId, daysToReserve));
     }
 
