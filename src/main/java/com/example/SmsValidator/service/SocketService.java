@@ -4,9 +4,11 @@ import com.example.SmsValidator.auth.JwtTokenProvider;
 import com.example.SmsValidator.entity.*;
 import com.example.SmsValidator.exception.customexceptions.provider.CouldNotFindSuchModemException;
 import com.example.SmsValidator.exception.customexceptions.socket.ModemProviderSessionAlreadyActiveException;
+import com.example.SmsValidator.exception.customexceptions.socket.ModemProviderSessionDoesNotExistException;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.repository.*;
 import com.example.SmsValidator.socket.MessageFormer;
+import com.example.SmsValidator.socket.ModemSocketHandler;
 import com.example.SmsValidator.socket.OutCommands;
 import com.example.SmsValidator.socket.container.CheckProviderOutContainer;
 import com.example.SmsValidator.socket.container.ModemCheckOutContainer;
@@ -38,7 +40,6 @@ public class SocketService {
     private final UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider tokenProvider;
-
     public TaskEntity getTaskById(Long id) {
         return taskEntityRepository.findById(id).get();
     }
@@ -76,17 +77,29 @@ public class SocketService {
                                 .and(TaskSpecification.hasProviderSession_Id(providerSession.getId()))
                 ).stream().findFirst()
                 .orElse(null);
-        if (task==null) return 0;
+        if (task == null) return 0;
 //                .findByIdAndModemProviderSessionEntity(taskId, providerSession);
         return setTaskDone(task, providerSession);
     }
 
+    public int disconnectModemsFromProvider(List<ModemEntity> modems, ModemProviderSessionEntity modemProviderSession) {
+        List<Long> ids = modems.stream()
+                .map(ModemEntity::getId)
+                .toList();
+        return modemEntityRepository
+                .updateModemProviderSessionEntityByIdInAndModemProviderSessionEntity(
+                        null,
+                        ids,
+                        modemProviderSession
+                );
+    }
+
     public int disconnectModemOnProviderBusy(long taskId) {
-        ModemEntity modemEntity =  modemEntityRepository.findByTaskEntity_IdAndModemProviderSessionEntity_BusyTrue(taskId);
-        if(modemEntity == null) {
+        ModemEntity modemEntity = modemEntityRepository.findByTaskEntity_IdAndModemProviderSessionEntity_BusyTrue(taskId);
+        if (modemEntity == null) {
             return 0;
         }
-        return modemEntityRepository.updateModemProviderSessionEntityById(null ,modemEntity.getId());
+        return modemEntityRepository.updateModemProviderSessionEntityById(null, modemEntity.getId());
     }
 
     private int setTaskDone(TaskEntity task, ModemProviderSessionEntity providerSession) {
@@ -211,7 +224,7 @@ public class SocketService {
         List<String> existingNumbers = modemEntityRepository.findByPhoneNumberIn(
                 modems.stream().map(ModemEntity::getPhoneNumber).collect(Collectors.toList())
         ).stream().map(ModemEntity::getPhoneNumber).toList();
-        List<ModemEntity> newModems =  (List<ModemEntity>) modemEntityRepository.saveAll(modems.stream().filter(
+        List<ModemEntity> newModems = (List<ModemEntity>) modemEntityRepository.saveAll(modems.stream().filter(
                 m -> !existingNumbers.contains(m.getPhoneNumber())).collect(Collectors.toList()
         ));
         createNewUsedServices(newModems);

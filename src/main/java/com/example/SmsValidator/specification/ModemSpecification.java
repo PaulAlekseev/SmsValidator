@@ -6,11 +6,14 @@ import com.example.SmsValidator.specification.extra.Reserved;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class ModemSpecification {
+
+    public static Specification<ModemEntity> hasImsiIn(List<String> imsis) {
+        return ((root, query, criteriaBuilder) -> criteriaBuilder.in(root.get(ModemEntity_.IMSI), imsis));
+    }
     public static Specification<ModemEntity> hasImsi(String imsi) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ModemEntity_.IMSI), imsi);
     }

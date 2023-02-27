@@ -11,4 +11,5 @@ public class OutCommands {
     public static final String START_PROVIDER = "StartProvider";
     public static final String STOP_PROVIDER = "StopProvider";
     public static final String START_SAVE_MODEMS = "StartSaveModems";
+    public static final String DISCONNECT_MODEMS = "DisconnectModems";
 }

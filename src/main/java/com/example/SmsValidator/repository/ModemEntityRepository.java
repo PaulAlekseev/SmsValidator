@@ -18,6 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long>, JpaSpecificationExecutor<ModemEntity> {
+    @Transactional
+    @Modifying
+    @Query("""
+            update ModemEntity m set m.modemProviderSessionEntity = ?1
+            where m.id in ?2 and m.modemProviderSessionEntity = ?3""")
+    int updateModemProviderSessionEntityByIdInAndModemProviderSessionEntity(ModemProviderSessionEntity modemProviderSessionEntity, Collection<Long> ids, ModemProviderSessionEntity modemProviderSessionEntity1);
 
     @Transactional
     @Modifying

@@ -11,9 +11,7 @@ import com.example.SmsValidator.repository.ModemEntityRepository;
 import com.example.SmsValidator.repository.UserRepository;
 import com.example.SmsValidator.specification.ModemSpecification;
 import com.example.SmsValidator.specification.extra.Order;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +45,22 @@ public class ModemService {
 
 //                .findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_TimesUsedOrderByIdDesc(0);
 //                .findFirstByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndModemProviderSessionEntity_BusyFalseAndUsedServiceTypeEntityListEmptyOrderByIdDesc(new Date());
+    }
+
+    public int disconnectModemsOnSave(ModemProviderSessionEntity modemProviderSession) {
+        return modemEntityRepository.
+                updateModemProviderSessionEntityByModemProviderSessionEntityAndBusyFalse(null, modemProviderSession);
+    }
+
+    public List<ModemEntity> getModemsWithSpecification(Specification<ModemEntity> specification) {
+        return modemEntityRepository
+                .findAll(specification);
+    }
+
+    public int disconnectNotBusyModems(ModemProviderSessionEntity providerSession) {
+        return modemEntityRepository
+                .updateModemProviderSessionEntityByModemProviderSessionEntityAndBusyFalse(
+                        null, providerSession);
     }
 
     public Specification<ModemEntity> formServiceAbbreviationSpecification(String specificationAbbreviations) {

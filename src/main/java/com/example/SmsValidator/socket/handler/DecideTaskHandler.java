@@ -28,6 +28,7 @@ public class DecideTaskHandler {
             case "ConnectModem" -> new ConnectModemCommand(message.getJson(), providerSession, service, session, sessions);
             case "Messages" -> new MessagesCommand(message.getJson(), providerSession, service, session, sessions);
             case "TaskSetDone" -> new TaskDoneCommand(message.getJson(), providerSession, service, session, sessions);
+            case "DisconnectModems" -> new DisconnectModemsCommand(message.getJson(), providerSession, service, session, sessions);
             default -> null;
         };
     }
