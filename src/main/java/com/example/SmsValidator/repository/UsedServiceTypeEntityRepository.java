@@ -4,6 +4,8 @@ import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.ServiceTypeEntity;
 import com.example.SmsValidator.entity.TaskEntity;
 import com.example.SmsValidator.entity.UsedServiceTypeEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -14,7 +16,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-public interface UsedServiceTypeEntityRepository extends CrudRepository<UsedServiceTypeEntity, Long> {
+public interface UsedServiceTypeEntityRepository extends CrudRepository<UsedServiceTypeEntity, Long>, JpaSpecificationExecutor<UsedServiceTypeEntity> {
     @Transactional
     @Modifying
     @Query("""

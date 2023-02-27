@@ -19,17 +19,6 @@ import java.util.Optional;
 
 public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long>, JpaSpecificationExecutor<ModemEntity> {
 
-
-    @Transactional
-    @Modifying
-    @Query("""
-            update ModemEntity m set m.modemProviderSessionEntity = ?1
-            where m.modemProviderSessionEntity = ?2 and m.IMSI = ?3 and m.ICCID = ?4""")
-    int updateModemProviderSessionEntityByModemProviderSessionEntityAndIMSIAndICCID(ModemProviderSessionEntity modemProviderSessionEntity, ModemProviderSessionEntity modemProviderSessionEntity1, String IMSI, String ICCID);
-
-    @EntityGraph(attributePaths = "taskEntity")
-    List<ModemEntity> findByModemProviderSessionEntity_User_Email(String email);
-
     @Transactional
     @Modifying
     @Query("""

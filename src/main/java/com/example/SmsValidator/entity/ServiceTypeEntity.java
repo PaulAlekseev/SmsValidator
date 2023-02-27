@@ -18,6 +18,7 @@ public class ServiceTypeEntity {
     private Long id;
 
     private String name;
+    private String abbreviation;
     private Boolean active;
 
     private String messageRegex;

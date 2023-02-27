@@ -7,9 +7,10 @@ import java.util.List;
 
 @Data
 public class ModemDto {
+    private Long id;
     private String phoneNumber;
     private String IMSI;
     private boolean busy;
     private Date reservedUntil;
-    private List<TaskDto> taskEntity;
+    private ModemProviderSessionDto modemProviderSessionEntity;
 }

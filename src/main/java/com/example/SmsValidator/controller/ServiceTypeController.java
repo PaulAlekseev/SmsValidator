@@ -18,7 +18,7 @@ public class ServiceTypeController {
     }
 
     @GetMapping(path = "getAllowedModems")
-    public ResponseEntity<?> getAllowedModems(@RequestParam Long serviceId) {
-        return ResponseEntity.ok(serviceTypeService.getAmountOfAvailable(serviceId));
+    public ResponseEntity<?> getAllowedModems(@RequestParam String serviceAbbreviation) {
+        return ResponseEntity.ok(serviceTypeService.getAmountOfAvailable(serviceAbbreviation));
     }
 }

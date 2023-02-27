@@ -1,9 +1,6 @@
 package com.example.SmsValidator.service;
 
-import com.example.SmsValidator.bean.provider.ProviderActivateBaseResponse;
-import com.example.SmsValidator.bean.provider.ProviderActivateErrorResponse;
-import com.example.SmsValidator.bean.provider.ProviderActivateSuccessResponse;
-import com.example.SmsValidator.bean.provider.ProviderModemsSuccessResponse;
+import com.example.SmsValidator.bean.provider.*;
 import com.example.SmsValidator.dto.ModemDto;
 import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.ModemProviderSessionEntity;
@@ -132,6 +129,10 @@ public class ProviderService {
                 .data(data)
                 .build();
     }
+
+//    public ProviderModemsSuccessResponse disconnectModemsByCriteria(ProviderModemDisconnectCriteriaRequest request ) {
+//
+//    }
 
 //    public void thing(ModemEntity modemEntity)
 //            throws ProviderSessionNotFoundException, CouldNotFindSuchModemException {

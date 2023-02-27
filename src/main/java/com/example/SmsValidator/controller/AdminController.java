@@ -1,6 +1,7 @@
 package com.example.SmsValidator.controller;
 
 import com.example.SmsValidator.bean.servicetype.CreateNewServiceRequest;
+import com.example.SmsValidator.exception.CustomException;
 import com.example.SmsValidator.exception.customexceptions.modem.ModemNotFoundException;
 import com.example.SmsValidator.service.ModemService;
 import com.example.SmsValidator.service.ServiceTypeService;
@@ -8,6 +9,8 @@ import com.example.SmsValidator.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class AdminController {
 
     @PostMapping(path = "create")
     public ResponseEntity<?> createTask(@RequestParam Long telegramId,
-                                        @RequestParam Long serviceId) {
+                                        @RequestParam Long serviceId) throws CustomException, IOException {
         return ResponseEntity.ok(taskService.createTelegramTask(serviceId, telegramId));
     }
 

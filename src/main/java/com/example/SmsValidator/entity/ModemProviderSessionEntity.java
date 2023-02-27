@@ -24,9 +24,9 @@ public class ModemProviderSessionEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(cascade = CascadeType.DETACH, mappedBy = "modemProviderSessionEntity")
+    @OneToMany(cascade = CascadeType.DETACH, mappedBy = "modemProviderSessionEntity", fetch = FetchType.LAZY)
     private List<TaskEntity> taskEntityList;
 
-    @OneToMany(cascade = CascadeType.DETACH, mappedBy = "modemProviderSessionEntity")
+    @OneToMany(cascade = CascadeType.DETACH, mappedBy = "modemProviderSessionEntity", fetch = FetchType.LAZY)
     private List<ModemEntity> modemEntityList;
 }

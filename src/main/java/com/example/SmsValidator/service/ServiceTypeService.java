@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ServiceTypeService {
-
-    private static final String SERVICE_ID_ERROR = "Service with this id does not exist";
-    private static final String NO_AVAILABLE_MODEM = "There is no allowed modem";
     private final ServiceTypeEntityRepository serviceTypeRepository;
     private final UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
     private final TaskService taskService;
@@ -92,17 +89,11 @@ public class ServiceTypeService {
 //        return getAvailableModem(serviceType);
 //    }
 
-    public GetAmountOfAllowedModemBaseResponse getAmountOfAvailable(Long serviceId) {
-        try {
-            ServiceTypeEntity serviceType = serviceTypeRepository.findById(serviceId).orElseThrow(() -> new Exception(SERVICE_ID_ERROR));
-            return getAmountOfAvailable(serviceType);
-        } catch (Exception e) {
-            return new GetAmountOfAllowedModemErrorResponse(e.getLocalizedMessage());
-        }
-    }
-
-    private GetAmountOfAllowedModemBaseResponse getAmountOfAvailable(ServiceTypeEntity serviceType) {
-        int amount = taskService.getAmountOfAvailableServices(serviceType);
-        return new GetAmountOfAllowedModemSuccessResponse(ServiceType.toModel(serviceType), amount);
+    public GetAmountOfAllowedModemBaseResponse getAmountOfAvailable(String serviceAbbreviation) {
+        int amount = taskService.getAmountOfAvailableServices(serviceAbbreviation);
+        return GetAmountOfAllowedModemSuccessResponse.builder()
+                .amount(amount)
+                .service(serviceAbbreviation)
+                .build();
     }
 }

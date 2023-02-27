@@ -18,7 +18,7 @@ public class MessageEntity {
     private String sender;
     private String message;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id")
     private TaskEntity taskEntity;
 }

@@ -25,23 +25,23 @@ public class TaskEntity {
     private boolean reserved;
     private boolean success;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
     private ServiceTypeEntity serviceTypeEntity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modem_id")
     private ModemEntity modemEntity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "used_service_id")
     private UsedServiceTypeEntity usedServiceTypeEntity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modem_provider_session_id")
     private ModemProviderSessionEntity modemProviderSessionEntity;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

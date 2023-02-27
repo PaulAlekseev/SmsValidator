@@ -11,6 +11,7 @@ import com.example.SmsValidator.repository.ModemEntityRepository;
 import com.example.SmsValidator.repository.UserRepository;
 import com.example.SmsValidator.specification.ModemSpecification;
 import com.example.SmsValidator.specification.extra.Order;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,7 +20,9 @@ import org.springframework.stereotype.Service;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,8 +44,18 @@ public class ModemService {
                 .findAll(modemSpecification)
                 .stream().findFirst()
                 .orElseThrow(() -> new ModemNotFoundException("Could not find such modem"));
+
 //                .findFirstByBusyFalseAndModemProviderSessionEntity_BusyFalseAndModemProviderSessionEntity_ActiveTrueAndUsedServiceTypeEntityList_TimesUsedOrderByIdDesc(0);
 //                .findFirstByBusyFalseAndReservedUntilLessThanAndModemProviderSessionEntity_ActiveTrueAndModemProviderSessionEntity_BusyFalseAndUsedServiceTypeEntityListEmptyOrderByIdDesc(new Date());
+    }
+
+    public Specification<ModemEntity> formServiceAbbreviationSpecification(String specificationAbbreviations) {
+        List<String> services = new ArrayList<>(List.of(specificationAbbreviations.split(",")));
+        Specification<ModemEntity> specification = ModemSpecification.usedService(services.remove(0));
+        for (String service : services) {
+            specification = specification.or(ModemSpecification.usedService(service));
+        }
+        return specification;
     }
 
     public ReserveModemBaseResponse reserveModem(Principal principal, int daysToReserve) throws ModemNotFoundException {

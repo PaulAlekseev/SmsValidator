@@ -24,12 +24,12 @@ public class UsedServiceTypeEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
     @NotNull
     private ServiceTypeEntity serviceType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "modem_id")
     @NotNull
     private ModemEntity modemEntity;

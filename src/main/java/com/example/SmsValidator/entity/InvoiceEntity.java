@@ -21,7 +21,7 @@ public class InvoiceEntity {
     private Boolean validated = false;
     private Date created = new Date();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }

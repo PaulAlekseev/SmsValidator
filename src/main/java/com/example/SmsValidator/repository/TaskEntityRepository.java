@@ -3,6 +3,7 @@ package com.example.SmsValidator.repository;
 import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.ModemProviderSessionEntity;
 import com.example.SmsValidator.entity.TaskEntity;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -11,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface TaskEntityRepository extends CrudRepository<TaskEntity, Long> {
+public interface TaskEntityRepository extends CrudRepository<TaskEntity, Long> , JpaSpecificationExecutor<TaskEntity> {
     @Transactional
     @Modifying
     @Query("update TaskEntity t set t.success = ?1 where t.id = ?2")

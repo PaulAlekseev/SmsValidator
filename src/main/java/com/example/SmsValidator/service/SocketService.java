@@ -2,6 +2,7 @@ package com.example.SmsValidator.service;
 
 import com.example.SmsValidator.auth.JwtTokenProvider;
 import com.example.SmsValidator.entity.*;
+import com.example.SmsValidator.exception.customexceptions.provider.CouldNotFindSuchModemException;
 import com.example.SmsValidator.exception.customexceptions.socket.ModemProviderSessionAlreadyActiveException;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.repository.*;
@@ -10,6 +11,7 @@ import com.example.SmsValidator.socket.OutCommands;
 import com.example.SmsValidator.socket.container.CheckProviderOutContainer;
 import com.example.SmsValidator.socket.container.ModemCheckOutContainer;
 import com.example.SmsValidator.socket.container.UpdateModemOnPortContainer;
+import com.example.SmsValidator.specification.TaskSpecification;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,10 +43,10 @@ public class SocketService {
         return taskEntityRepository.findById(id).get();
     }
 
+    @Deprecated
     public void updateUsedServiceOnSuccess(TaskEntity task) {
         UsedServiceTypeEntity usedServiceType = usedServiceTypeEntityRepository
                 .findFirstByModemEntity_IdAndServiceType_Id(task.getModemEntity().getId(), task.getServiceTypeEntity().getId());
-//                .findByTaskEntity_ModemEntity_Id(task.getModemEntity().getId());
         if (usedServiceType == null) {
             return;
         } else {
@@ -59,8 +61,23 @@ public class SocketService {
         taskEntityRepository.save(task);
     }
 
+    public void updateModemOnSuccess(TaskEntity task) {
+        ModemEntity modem = task.getModemEntity();
+        modem.addService(task.getServiceName());
+        modemEntityRepository.save(modem);
+    }
+
     public int setTaskDone(Long taskId, ModemProviderSessionEntity providerSession) {
-        TaskEntity task = taskEntityRepository.findByIdAndModemProviderSessionEntity(taskId, providerSession);
+        TaskEntity task = taskEntityRepository
+                .findAll(
+                        TaskSpecification.withModemEntity()
+                                .and(TaskSpecification.hasId(taskId))
+                                .and(TaskSpecification.withServiceType())
+                                .and(TaskSpecification.hasProviderSession_Id(providerSession.getId()))
+                ).stream().findFirst()
+                .orElse(null);
+        if (task==null) return 0;
+//                .findByIdAndModemProviderSessionEntity(taskId, providerSession);
         return setTaskDone(task, providerSession);
     }
 
@@ -74,7 +91,7 @@ public class SocketService {
 
     private int setTaskDone(TaskEntity task, ModemProviderSessionEntity providerSession) {
         if (task.isDone()) return 1;
-        if (task.isReady() && task.isSuccess()) updateUsedServiceOnSuccess(task);
+        if (task.isReady() && task.isSuccess()) updateModemOnSuccess(task);
         return taskEntityRepository.
                 updateDoneByIdAndModemProviderSessionEntity(true, task.getId(), providerSession);
     }
@@ -234,10 +251,12 @@ public class SocketService {
 
     public ModemEntity updateModemOnBusyTask(Long taskId, Map<String, WebSocketSession> sessions, ModemProviderSessionEntity providerSession) {
         if (taskService.checkIfReserved(taskId)) return null;
-        ModemEntity chosenModem = taskService.getAvailableModem(
-                taskEntityRepository.findById(taskId).get().getServiceTypeEntity()
-        );
-        if (chosenModem == null) {
+        ModemEntity chosenModem = null;
+        try {
+            chosenModem = taskService.getAvailableModem(
+                    taskEntityRepository.findById(taskId).get().getServiceTypeEntity().getAbbreviation()
+            );
+        } catch (CouldNotFindSuchModemException e) {
             setTaskNotReady(taskId);
             setTaskDone(taskId, providerSession);
             return null;

@@ -3,24 +3,18 @@ server:
 
 spring:
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: update
-      show-sql: true
+    properties:
+      hibernate:
+        format_sql : true
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql.j93065772.myjino.ru:3306/j93065772
     username: j93065772
     password: crytek236
-
-logging:
-  level:
-    org:
-      hibernate:
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicTinder: TRACE
 
 payment:
   coin-remitter:

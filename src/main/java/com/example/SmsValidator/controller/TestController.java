@@ -2,22 +2,22 @@ package com.example.SmsValidator.controller;
 
 import com.example.SmsValidator.dto.ModemDto;
 import com.example.SmsValidator.entity.InvoiceEntity;
+import com.example.SmsValidator.entity.ModemEntity;
 import com.example.SmsValidator.entity.User;
 import com.example.SmsValidator.exception.customexceptions.modem.ModemNotFoundException;
-import com.example.SmsValidator.repository.InvoiceEntityRepository;
-import com.example.SmsValidator.repository.ModemEntityRepository;
-import com.example.SmsValidator.repository.ModemProviderSessionEntityRepository;
-import com.example.SmsValidator.repository.UserRepository;
+import com.example.SmsValidator.repository.*;
 import com.example.SmsValidator.service.ModemService;
 import com.example.SmsValidator.service.PaymentService;
 import com.example.SmsValidator.service.ProviderService;
 import com.example.SmsValidator.specification.ModemSpecification;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +33,7 @@ public class TestController {
     private final ModemProviderSessionEntityRepository modemProviderSessionEntityRepository;
     private final ModemEntityRepository modemEntityRepository;
     private final ModemService modemService;
+    private final UsedServiceTypeEntityRepository usedServiceTypeEntityRepository;
 
     @PostMapping("createInvoice")
     public ResponseEntity<?> createInvoice(@RequestParam int amount) throws Exception {
@@ -48,7 +49,7 @@ public class TestController {
         List<ModemDto> modem = modemEntityRepository
                 .findAll(
                         ModemSpecification.hasModemProviderSessionId((long) id)
-//                                .and(ModemSpecification.withTasks())
+                                .and(ModemSpecification.withTasks())
                                 .and(ModemSpecification.hasRevenueMoreThan(revenue))
 
                 )
@@ -65,6 +66,27 @@ public class TestController {
         return ResponseEntity.ok(modem);
     }
 
+    @GetMapping("testModem1")
+    public ResponseEntity<?> testModem1(@RequestParam String serviceAbbreviations) {
+        ModelMapper modelMapper = new ModelMapper();
+        Specification<ModemEntity> specification = ModemSpecification.hasBusy(false)
+                .and(ModemSpecification.withModemProviderSession());
+        specification = specification.and(modemService.formServiceAbbreviationSpecification(serviceAbbreviations));
+        List<ModemDto> modem = modemEntityRepository
+                .findAll(specification
+//                        ModemSpecification.notUsedService(serviceAbbreviation)
+//                        .and(ModemSpecification.hasModemProviderSessionEntity_Busy(false))
+//                        .and(ModemSpecification.hasModemProviderSessionEntity_Active(true))
+//                        .and(ModemSpecification.hasBusy(false))
+//                        .and(ModemSpecification.isReserved(Reserved.NOT_RESERVED))
+//                        .and(ModemSpecification.withModemProviderSession())
+                )
+                .stream()
+                .map((entity) -> modelMapper.map(entity, ModemDto.class))
+                .toList();
+        return ResponseEntity.ok(modem);
+    }
+
     @GetMapping("things")
     public ResponseEntity<?> something1() {
         User user = userRepository.findFirstByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
@@ -75,7 +97,6 @@ public class TestController {
         invoiceEntityRepository.save(invoice);
         return ResponseEntity.ok(user);
     }
-
 
     @PostMapping("topUp")
     public ResponseEntity<?> topUp(@RequestParam int amount, @RequestParam Long invoiceId, @RequestParam int userId)

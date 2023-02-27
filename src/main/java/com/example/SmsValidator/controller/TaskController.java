@@ -1,5 +1,6 @@
 package com.example.SmsValidator.controller;
 
+import com.example.SmsValidator.exception.CustomException;
 import com.example.SmsValidator.model.Modem;
 import com.example.SmsValidator.repository.ModemEntityRepository;
 import com.example.SmsValidator.service.TaskService;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -23,7 +25,7 @@ public class TaskController {
     @PostMapping("create")
     public ResponseEntity<?> createTask(
             Principal principal,
-            @RequestParam Long serviceId) {
+            @RequestParam Long serviceId) throws CustomException, IOException {
         return ResponseEntity.ok(taskService.createTask(serviceId, principal));
     }
 
