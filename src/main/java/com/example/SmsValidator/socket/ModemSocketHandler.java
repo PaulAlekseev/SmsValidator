@@ -43,7 +43,6 @@ public class ModemSocketHandler implements WebSocketHandler {
             return;
         }
         String token = matcher.group(1);
-
         service.createModemProviderSession(providerSession, token);
         sessions.put(session.getId(), session);
     }

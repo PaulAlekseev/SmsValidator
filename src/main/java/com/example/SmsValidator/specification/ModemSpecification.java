@@ -12,7 +12,7 @@ import java.util.List;
 public class ModemSpecification {
 
     public static Specification<ModemEntity> hasImsiIn(List<String> imsis) {
-        return ((root, query, criteriaBuilder) -> criteriaBuilder.in(root.get(ModemEntity_.IMSI), imsis));
+        return ((root, query, criteriaBuilder) -> criteriaBuilder.in(root.get(ModemEntity_.IMSI).in(imsis)));
     }
     public static Specification<ModemEntity> hasImsi(String imsi) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(ModemEntity_.IMSI), imsi);

@@ -83,14 +83,14 @@ public class SocketService {
     }
 
     public int disconnectModemsFromProvider(List<ModemEntity> modems, ModemProviderSessionEntity modemProviderSession) {
-        List<Long> ids = modems.stream()
-                .map(ModemEntity::getId)
+        List<String> imsis = modems.stream()
+                .map(ModemEntity::getIMSI)
                 .toList();
         return modemEntityRepository
-                .updateModemProviderSessionEntityByIdInAndModemProviderSessionEntity(
+                .updateModemProviderSessionEntityByModemProviderSessionEntityAndIMSIIn(
                         null,
-                        ids,
-                        modemProviderSession
+                        modemProviderSession,
+                        imsis
                 );
     }
 

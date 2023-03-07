@@ -22,6 +22,18 @@ public interface ModemEntityRepository extends CrudRepository<ModemEntity, Long>
     @Modifying
     @Query("""
             update ModemEntity m set m.modemProviderSessionEntity = ?1
+            where m.modemProviderSessionEntity = ?2 and m.IMSI in ?3""")
+    int updateModemProviderSessionEntityByModemProviderSessionEntityAndIMSIIn(ModemProviderSessionEntity modemProviderSessionEntity, ModemProviderSessionEntity modemProviderSessionEntity1, Collection<String> IMSIS);
+    @Transactional
+    @Modifying
+    @Query("""
+            update ModemEntity m set m.modemProviderSessionEntity = ?1
+            where m.IMSI = ?2 and m.modemProviderSessionEntity = ?3""")
+    int updateModemProviderSessionEntityByIMSIAndModemProviderSessionEntity(ModemProviderSessionEntity modemProviderSessionEntity, String IMSI, ModemProviderSessionEntity modemProviderSessionEntity1);
+    @Transactional
+    @Modifying
+    @Query("""
+            update ModemEntity m set m.modemProviderSessionEntity = ?1
             where m.id in ?2 and m.modemProviderSessionEntity = ?3""")
     int updateModemProviderSessionEntityByIdInAndModemProviderSessionEntity(ModemProviderSessionEntity modemProviderSessionEntity, Collection<Long> ids, ModemProviderSessionEntity modemProviderSessionEntity1);
 

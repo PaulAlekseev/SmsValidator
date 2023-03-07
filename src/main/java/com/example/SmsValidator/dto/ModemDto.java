@@ -12,5 +12,6 @@ public class ModemDto {
     private String IMSI;
     private boolean busy;
     private Date reservedUntil;
-    private ModemProviderSessionDto modemProviderSessionEntity;
+    private String services;
+    private List<TaskDto> taskEntity;
 }

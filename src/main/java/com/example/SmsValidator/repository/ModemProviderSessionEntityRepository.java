@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface ModemProviderSessionEntityRepository extends CrudRepository<ModemProviderSessionEntity, Long> {
+    @Transactional
     Optional<ModemProviderSessionEntity> findByUser_UsernameAndActiveTrue(String username);
     ModemProviderSessionEntity findByUser_EmailAndActiveTrueAndBusyTrue(String email);
     ModemProviderSessionEntity findFirstByUser_EmailAndActiveTrueAndBusyFalse(String email);
@@ -38,4 +39,7 @@ public interface ModemProviderSessionEntityRepository extends CrudRepository<Mod
     @Query("update ModemProviderSessionEntity m set m.busy = ?1 where m.socketId = ?2 and m.active = true")
     int updateBusyBySocketIdAndActiveTrue(Boolean busy, String socketId);
     ModemProviderSessionEntity findBySocketIdAndActiveTrue(String socketId);
+
+    @Transactional
+    Optional<ModemProviderSessionEntity> findByUser_EmailAndActiveTrue(String name);
 }

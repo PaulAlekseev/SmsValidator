@@ -42,15 +42,26 @@ public class ProviderController {
         return ResponseEntity.ok(providerService.getProvidersWorkingModems());
     }
 
-    @PutMapping(path = "disconnectModemsCriteria")
-    public ResponseEntity<?> disconnectModems(@RequestBody ProviderModemDisconnectCriteriaRequest request)
-            throws ProviderSessionNotFoundException, ProviderSessionBusyException, ModemProviderSessionDoesNotExistException, IOException {
-        return ResponseEntity.ok(providerService.disconnectModemsByCriteria(request));
-    }
+//    @PutMapping(path = "disconnectModemsCriteria")
+//    public ResponseEntity<?> disconnectModems(@RequestBody ProviderModemDisconnectCriteriaRequest request)
+//            throws ProviderSessionNotFoundException, ProviderSessionBusyException, ModemProviderSessionDoesNotExistException, IOException {
+//        return ResponseEntity.ok(providerService.disconnectModemsByCriteria(request));
+//    }
 
     @PutMapping(path = "disconnectModems")
     public ResponseEntity<?> disconnectModem(@RequestBody ProviderModemDisconnectRequest request)
             throws ProviderSessionNotFoundException, ProviderSessionBusyException, ModemProviderSessionDoesNotExistException, IOException {
         return ResponseEntity.ok(providerService.disconnectModems(request));
+    }
+
+    @GetMapping(path = "getByCriteria")
+    public ResponseEntity<?> getModemsByCriteria(@RequestParam int revenue, @RequestParam String services)
+            throws ProviderSessionNotFoundException, ProviderSessionBusyException {
+        return ResponseEntity.ok(providerService.getModemsByCriteria(revenue, services));
+    }
+
+    @GetMapping(path = "getTasks")
+    public ResponseEntity<?> getTasks(@RequestParam Long modemId) {
+        return ResponseEntity.ok(providerService.getTasksFromModemId(modemId));
     }
 }
